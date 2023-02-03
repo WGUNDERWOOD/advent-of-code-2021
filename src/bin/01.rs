@@ -1,5 +1,12 @@
 pub fn part_one(input: &str) -> Option<u32> {
-    None
+    let lines: Vec<i32> = input.lines().map(|n| n.parse().unwrap()).collect();
+    let mut counter = 0;
+    for i in 1..lines.len() {
+        if lines[i] > lines[i - 1] {
+            counter += 1
+        }
+    }
+    return Some(counter);
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
@@ -19,7 +26,7 @@ mod tests {
     #[test]
     fn test_part_one() {
         let input = advent_of_code::read_file("examples", 1);
-        assert_eq!(part_one(&input), None);
+        assert_eq!(part_one(&input), Some(7));
     }
 
     #[test]
