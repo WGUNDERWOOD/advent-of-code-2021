@@ -1,4 +1,4 @@
-pub fn part_one(input: &str) -> Option<u32> {
+pub fn part_one(input: &str) -> Option<i32> {
     let lines: Vec<i32> = input.lines().map(|n| n.parse().unwrap()).collect();
     let mut counter = 0;
     for i in 1..lines.len() {
@@ -9,8 +9,17 @@ pub fn part_one(input: &str) -> Option<u32> {
     return Some(counter);
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
-    None
+pub fn part_two(input: &str) -> Option<i32> {
+    let lines: Vec<i32> = input.lines().map(|n| n.parse().unwrap()).collect();
+    let mut counter = 0;
+    for i in 1..lines.len() - 2 {
+        let sum1: i32 = lines[i..i + 3].iter().sum();
+        let sum2: i32 = lines[i - 1..i + 2].iter().sum();
+        if sum1 > sum2 {
+            counter += 1
+        }
+    }
+    return Some(counter);
 }
 
 fn main() {
@@ -32,6 +41,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 1);
-        assert_eq!(part_two(&input), None);
+        assert_eq!(part_two(&input), Some(5));
     }
 }
