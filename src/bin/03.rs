@@ -1,6 +1,5 @@
-fn get_most_common_bit(binaries: &Vec<Vec<bool>>) -> Vec<bool> {
-
-    let mut most_common_bit: Vec<bool> = vec![];
+fn get_most_common(binaries: &Vec<Vec<bool>>) -> Vec<bool> {
+    let mut most_common: Vec<bool> = vec![];
     let n = binaries.len();
     let l = binaries[0].len();
 
@@ -11,10 +10,9 @@ fn get_most_common_bit(binaries: &Vec<Vec<bool>>) -> Vec<bool> {
                 counter += 1;
             }
         }
-        most_common_bit.push(counter > n - counter);
+        most_common.push(counter >= n - counter);
     }
-
-    most_common_bit
+    most_common
 }
 
 fn to_decimal(binary: &Vec<bool>) -> u32 {
@@ -29,7 +27,7 @@ fn to_decimal(binary: &Vec<bool>) -> u32 {
     decimal
 }
 
-pub fn part_one(input: &str) -> Option<u32> {
+fn get_binaries(input: &str) -> Vec<Vec<bool>> {
     let ls: Vec<&str> = input.lines().collect();
     let mut binaries: Vec<Vec<bool>> = vec![];
 
@@ -40,18 +38,58 @@ pub fn part_one(input: &str) -> Option<u32> {
         }
         binaries.push(binary)
     }
+    binaries
+}
 
-    let most_common_bit = get_most_common_bit(&binaries);
-    let gamma = to_decimal(&most_common_bit);
+enum MostLeast {
+    Most,
+    Least,
+}
 
-    let least_common_bit: Vec<bool> = most_common_bit.clone().iter().map(|x| !x).collect();
-    let epsilon = to_decimal(&least_common_bit);
+fn filter_most_common(binaries: &Vec<Vec<bool>>, mostleast: MostLeast) -> Vec<bool> {
+    let n: usize = binaries.len();
+    let mut ind_list: Vec<usize> = (0..n).collect();
+    let mut j = 0;
 
+    while ind_list.len() > 1 {
+        let k: usize = ind_list.len();
+        let mut counter = 0;
+
+        for i in 0..k {
+            if binaries[ind_list[i]][j] {
+                counter += 1;
+            }
+        }
+
+        let common = match mostleast {
+            MostLeast::Most => counter >= k - counter,
+            MostLeast::Least => counter < k - counter,
+        };
+
+        ind_list.retain(|x| binaries[*x][j] == common);
+        j += 1;
+    }
+
+    let ind = ind_list[0];
+    binaries[ind].clone()
+}
+
+pub fn part_one(input: &str) -> Option<u32> {
+    let binaries = get_binaries(&input);
+    let most_common = get_most_common(&binaries);
+    let gamma = to_decimal(&most_common);
+    let least_common: Vec<bool> = most_common.clone().iter().map(|x| !x).collect();
+    let epsilon = to_decimal(&least_common);
     Some(gamma * epsilon)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let binaries = get_binaries(&input);
+    let filtered_most_common = filter_most_common(&binaries, MostLeast::Most);
+    let oxygen = to_decimal(&filtered_most_common);
+    let filtered_least_common = filter_most_common(&binaries, MostLeast::Least);
+    let co2 = to_decimal(&filtered_least_common);
+    Some(oxygen * co2)
 }
 
 fn main() {
@@ -73,6 +111,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 3);
-        assert_eq!(part_two(&input), None);
+        assert_eq!(part_two(&input), Some(230));
     }
 }
