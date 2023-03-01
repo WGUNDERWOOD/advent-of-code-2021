@@ -26,6 +26,7 @@ fn parse_input(input: &str) -> (Vec<usize>, Vec<Board>) {
 }
 
 #[derive(Debug)]
+#[derive(Clone)]
 struct Board {
     numbers: Vec<Vec<usize>>,
     marked: Vec<Vec<bool>>,
@@ -42,33 +43,109 @@ impl Board {
         }
     }
 
-    // TODO this is not bingo
     fn has_won(&self) -> bool {
-        let mut won = true;
+
+        // check rows
+        for i in 0..DIM {
+            let mut row_won = true;
+            for j in 0..DIM {
+                if !self.marked[i][j] {
+                    row_won = false;
+                }
+            }
+            if row_won {
+                return true;
+            }
+        }
+
+        // check columns
+        for j in 0..DIM {
+            let mut col_won = true;
+            for i in 0..DIM {
+                if !self.marked[i][j] {
+                    col_won = false;
+                }
+            }
+            if col_won {
+                return true;
+            }
+        }
+    false
+    }
+
+    fn get_sum_unmarked(&self) -> usize {
+        let mut sum_unmarked = 0;
+
         for i in 0..DIM {
             for j in 0..DIM {
                 if !self.marked[i][j] {
-                    won = false;
+                    sum_unmarked += self.numbers[i][j];
                 }
             }
         }
-    won
+        sum_unmarked
     }
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
     let (draws, mut boards) = parse_input(input);
+    let n_boards = boards.len();
+    let mut won = false;
+    let mut n = 0;
+    let mut winning_draw = 0;
+    let mut winning_board = Board{ numbers: vec![vec![0; DIM]; DIM],
+                                   marked: vec![vec![false; DIM]; DIM] };
 
-    for n in draws.iter() {
-        for board in &mut boards {
-            board.mark(*n)
+    while !won{
+        let draw = draws[n];
+        for b in 0..n_boards {
+            let board = &mut boards[b];
+            board.mark(draw);
+            if board.has_won() {
+                won = true;
+                // TODO this clone is unnecessary
+                winning_board = board.clone();
+                winning_draw = draw;
+            }
         }
+        n += 1;
     }
-    None
+
+    let sum_unmarked = winning_board.get_sum_unmarked();
+    let score = sum_unmarked * winning_draw;
+    Some(score.try_into().unwrap())
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let (draws, mut boards) = parse_input(input);
+    let n_boards = boards.len();
+    let mut n = 0;
+    let mut finished = false;
+    let mut losing_draw = 0;
+    let mut losing_board = Board{ numbers: vec![vec![0; DIM]; DIM],
+                                  marked: vec![vec![false; DIM]; DIM] };
+
+    while !finished{
+        let draw = draws[n];
+        losing_draw = draw;
+        finished = true;
+        for b in 0..n_boards {
+            let board = &mut boards[b];
+            board.mark(draw);
+            if !board.has_won() {
+                // TODO this clone is unnecessary
+                losing_board = board.clone();
+                finished = false;
+            }
+        }
+
+        n += 1;
+    }
+
+    losing_board.mark(losing_draw);
+    let sum_unmarked = losing_board.get_sum_unmarked();
+    let score = sum_unmarked * losing_draw;
+    Some(score.try_into().unwrap())
 }
 
 fn main() {
@@ -90,6 +167,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 4);
-        assert_eq!(part_two(&input), None);
+        assert_eq!(part_two(&input), Some(1924));
     }
 }
