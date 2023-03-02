@@ -93,8 +93,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     let mut won = false;
     let mut n = 0;
     let mut winning_draw = 0;
-    let mut winning_board = Board{ numbers: vec![vec![0; DIM]; DIM],
-                                   marked: vec![vec![false; DIM]; DIM] };
+    let mut winning_board_id = 0;
 
     while !won{
         let draw = draws[n];
@@ -103,14 +102,14 @@ pub fn part_one(input: &str) -> Option<u32> {
             board.mark(draw);
             if board.has_won() {
                 won = true;
-                // TODO this clone is unnecessary
-                winning_board = board.clone();
+                winning_board_id = b;
                 winning_draw = draw;
             }
         }
         n += 1;
     }
 
+    let winning_board = &boards[winning_board_id];
     let sum_unmarked = winning_board.get_sum_unmarked();
     let score = sum_unmarked * winning_draw;
     Some(score.try_into().unwrap())
@@ -122,8 +121,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let mut n = 0;
     let mut finished = false;
     let mut losing_draw = 0;
-    let mut losing_board = Board{ numbers: vec![vec![0; DIM]; DIM],
-                                  marked: vec![vec![false; DIM]; DIM] };
+    let mut losing_board_id = 0;
 
     while !finished{
         let draw = draws[n];
@@ -134,14 +132,14 @@ pub fn part_two(input: &str) -> Option<u32> {
             board.mark(draw);
             if !board.has_won() {
                 // TODO this clone is unnecessary
-                losing_board = board.clone();
+                losing_board_id = b;
                 finished = false;
             }
         }
-
         n += 1;
     }
 
+    let losing_board = &mut boards[losing_board_id];
     losing_board.mark(losing_draw);
     let sum_unmarked = losing_board.get_sum_unmarked();
     let score = sum_unmarked * losing_draw;
