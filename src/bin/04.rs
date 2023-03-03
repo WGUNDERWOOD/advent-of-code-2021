@@ -2,8 +2,10 @@ const DIM: usize = 5;
 
 fn parse_input(input: &str) -> (Vec<usize>, Vec<Board>) {
     let mut ls: Vec<&str> = input.lines().collect();
-    let draws: Vec<usize> = ls[0].split(",")
-        .map(|x| x.parse::<usize>().unwrap()).collect();
+    let draws: Vec<usize> = ls[0]
+        .split(",")
+        .map(|x| x.parse::<usize>().unwrap())
+        .collect();
 
     ls.push("");
     let mut boards: Vec<Board> = vec![];
@@ -12,21 +14,26 @@ fn parse_input(input: &str) -> (Vec<usize>, Vec<Board>) {
     for i in 2..ls.len() {
         if ls[i] == "" {
             let marked = vec![vec![false; DIM]; DIM];
-            let mut board = Board{numbers: numbers.clone(), marked};
+            let mut board = Board {
+                numbers: numbers.clone(),
+                marked,
+            };
             board.numbers = numbers;
             boards.push(board);
             numbers = vec![]
         } else {
-            let row: Vec<usize> = ls[i].split(" ").filter(|x| !x.is_empty())
-                .map(|x| x.parse::<usize>().unwrap()).collect();
+            let row: Vec<usize> = ls[i]
+                .split(" ")
+                .filter(|x| !x.is_empty())
+                .map(|x| x.parse::<usize>().unwrap())
+                .collect();
             numbers.push(row.clone());
         }
     }
     (draws, boards)
 }
 
-#[derive(Debug)]
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 struct Board {
     numbers: Vec<Vec<usize>>,
     marked: Vec<Vec<bool>>,
@@ -44,7 +51,6 @@ impl Board {
     }
 
     fn has_won(&self) -> bool {
-
         // check rows
         for i in 0..DIM {
             let mut row_won = true;
@@ -70,7 +76,7 @@ impl Board {
                 return true;
             }
         }
-    false
+        false
     }
 
     fn get_sum_unmarked(&self) -> usize {
@@ -95,7 +101,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     let mut winning_draw = 0;
     let mut winning_board_id = 0;
 
-    while !won{
+    while !won {
         let draw = draws[n];
         for b in 0..n_boards {
             let board = &mut boards[b];
@@ -123,7 +129,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let mut losing_draw = 0;
     let mut losing_board_id = 0;
 
-    while !finished{
+    while !finished {
         let draw = draws[n];
         losing_draw = draw;
         finished = true;
