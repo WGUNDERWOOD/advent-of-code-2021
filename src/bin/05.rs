@@ -14,96 +14,74 @@ fn build_line(l: &str) -> Line {
     line.remove(2);
     let coords: Vec<u32> = line.iter().map(|x| x.parse().unwrap()).collect();
     let (x1, y1, x2, y2) = (coords[0], coords[1], coords[2], coords[3]);
-    let (x1, x2) = (min(x1, x2), max(x1, x2));
-    let (y1, y2) = (min(y1, y2), max(y1, y2));
     Line { x1, y1, x2, y2 }
 }
 
 impl Line {
-    fn is_vertical(&self) -> bool {
-        self.x1 == self.x2
+    fn is_axis_aligned(&self) -> bool {
+        (self.x1 == self.x2) || (self.y1 == self.y2)
     }
+}
 
-    fn is_horizontal(&self) -> bool {
-        self.y1 == self.y2
+fn add_point(ps: &mut HashMap<(u32, u32), u32>, p: (u32, u32)) {
+    if ps.contains_key(&p) {
+        *ps.get_mut(&p).unwrap() += 1;
+    } else {
+        ps.insert(p, 1);
     }
+}
 
-    fn get_intersections(&self, other: &Line) -> Vec<(u32, u32)> {
-        let h1 = self.is_horizontal();
-        let h2 = other.is_horizontal();
-        let v1 = self.is_vertical();
-        let v2 = other.is_vertical();
+fn add_points(ps: &mut HashMap<(u32, u32), u32>, line: &Line) {
+    let xmin = min(line.x1, line.x2);
+    let xmax = max(line.x1, line.x2);
+    let ymin = min(line.y1, line.y2);
+    let ymax = max(line.y1, line.y2);
 
-        if h1 && h2 {
-            if self.y1 == other.y1 {
-                let start = max(self.x1, other.x1);
-                let end = min(self.x2, other.x2);
-                if start <= end {
-                    let mut ps: Vec<(u32, u32)> = vec![];
-                    for x in start..(end + 1) {
-                        ps.push((x, self.y1));
-                    }
-                    return ps;
-                }
-            }
-        } else if h1 && v2 {
-            if (self.x1 <= other.x1)
-                && (other.x1 <= self.x2)
-                && (other.y1 <= self.y1)
-                && (self.y1 <= other.y2)
-            {
-                return vec![(other.x1, self.y1)];
-            }
-        } else if v1 && h2 {
-            if (other.x1 <= self.x1)
-                && (self.x1 <= other.x2)
-                && (self.y1 <= other.y1)
-                && (other.y1 <= self.y2)
-            {
-                return vec![(self.x1, other.y1)];
-            }
-        } else if v1 && v2 {
-            if self.x1 == other.x1 {
-                let start = max(self.y1, other.y1);
-                let end = min(self.y2, other.y2);
-                if start < end {
-                    let mut ps: Vec<(u32, u32)> = vec![];
-                    for y in start..(end + 1) {
-                        ps.push((self.x1, y));
-                    }
-                    return ps;
-                }
-            }
+    if line.x1 == line.x2 {
+        for y in ymin..=ymax {
+            let p = (line.x1, y);
+            add_point(ps, p);
         }
-
-        vec![]
+    } else if line.y1 == line.y2 {
+        for x in xmin..=xmax {
+            let p = (x, line.y1);
+            add_point(ps, p);
+        }
+    } else {
+        for x in xmin..=xmax {
+            let mut p: (u32, u32) = (0, 0);
+            if (line.x1 < line.x2) == (line.y1 < line.y2) {
+                p = (x, x - xmin + ymin);
+            } else {
+                p = (x, ymax + xmin - x);
+            }
+            add_point(ps, p);
+        }
     }
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
     let lines: Vec<Line> = input.lines().map(|x| build_line(x)).collect();
-    let axis_aligned_lines: Vec<&Line> = lines
-        .iter()
-        .filter(|x| x.is_vertical() || x.is_horizontal())
-        .collect();
-    let mut ps = HashMap::new();
-
-    for l1 in &axis_aligned_lines {
-        for l2 in &axis_aligned_lines {
-            if l1 != l2 {
-                for p in l1.get_intersections(l2) {
-                    ps.insert(p, true);
-                }
-            }
-        }
+    let axis_aligned_lines: Vec<&Line> = lines.iter().filter(|x| x.is_axis_aligned()).collect();
+    let mut ps: HashMap<(u32, u32), u32> = HashMap::new();
+    for line in axis_aligned_lines.iter() {
+        add_points(&mut ps, line);
     }
-
+    ps.retain(|_, x| *x >= 2);
     let num_intersections: u32 = ps.len().try_into().unwrap();
     Some(num_intersections)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let lines: Vec<Line> = input.lines().map(|x| build_line(x)).collect();
+    let mut ps: HashMap<(u32, u32), u32> = HashMap::new();
+    for line in lines.iter() {
+        add_points(&mut ps, line);
+    }
+    ps.retain(|_, x| *x >= 2);
+    //print!("{:?}", &ps);
+    let num_intersections: u32 = ps.len().try_into().unwrap();
+    Some(num_intersections)
 }
 
 fn main() {
@@ -125,6 +103,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 5);
-        assert_eq!(part_two(&input), None);
+        assert_eq!(part_two(&input), Some(12));
     }
 }
