@@ -49,13 +49,13 @@ fn add_points(ps: &mut HashMap<(u32, u32), u32>, line: &Line) {
         }
     } else {
         for x in xmin..=xmax {
-            let mut p: (u32, u32) = (0, 0);
             if (line.x1 < line.x2) == (line.y1 < line.y2) {
-                p = (x, x - xmin + ymin);
+                let p = (x, x - xmin + ymin);
+                add_point(ps, p);
             } else {
-                p = (x, ymax + xmin - x);
+                let p = (x, ymax + xmin - x);
+                add_point(ps, p);
             }
-            add_point(ps, p);
         }
     }
 }
@@ -79,7 +79,6 @@ pub fn part_two(input: &str) -> Option<u32> {
         add_points(&mut ps, line);
     }
     ps.retain(|_, x| *x >= 2);
-    //print!("{:?}", &ps);
     let num_intersections: u32 = ps.len().try_into().unwrap();
     Some(num_intersections)
 }
