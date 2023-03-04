@@ -6,10 +6,6 @@ fn get_median(v: &Vec<u32>) -> u32 {
     sv[v.len() / 2]
 }
 
-fn get_mean(v: &Vec<u32>) -> u32 {
-    v.iter().sum::<u32>() / (v.len() as u32)
-}
-
 fn fuel_part_one(a: u32, positions: &Vec<u32>) -> u32 {
     let mut fuel: u32 = 0;
     for position in positions {
@@ -45,7 +41,6 @@ pub fn part_two(input: &str) -> Option<u32> {
         .map(|x| x.parse().unwrap())
         .collect();
     let median = get_median(&positions);
-    let mean = get_mean(&positions);
     let mut best_fuel = fuel_part_two(median, &positions);
 
     for a in 0..=positions.len() {
