@@ -3,7 +3,11 @@ use ndarray::{arr1, arr2, Array1, Array2};
 const NSTATES: usize = 9;
 
 fn parse_input(input: &str) -> Array1<u64> {
-    let input_ints: Vec<u64> = input.split([',', '\n']).filter(|x| !x.is_empty()).map(|x| x.parse().unwrap()).collect();
+    let input_ints: Vec<u64> = input
+        .split([',', '\n'])
+        .filter(|x| !x.is_empty())
+        .map(|x| x.parse().unwrap())
+        .collect();
     let mut v0 = [0u64; NSTATES];
     for i in input_ints.iter() {
         v0[*i as usize] += 1;
@@ -14,7 +18,7 @@ fn parse_input(input: &str) -> Array1<u64> {
 fn build_a() -> Array2<u64> {
     let mut a = [[0; NSTATES]; NSTATES];
     for i in 0..(NSTATES - 1) {
-        a[i][i+1] = 1;
+        a[i][i + 1] = 1;
     }
     a[6][0] = 1;
     a[8][0] = 1;
