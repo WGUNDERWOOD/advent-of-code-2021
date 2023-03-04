@@ -1,7 +1,6 @@
 use std::cmp::{max, min};
 use std::collections::HashMap;
 
-#[derive(Debug, PartialEq)]
 struct Line {
     x1: u32,
     y1: u32,
