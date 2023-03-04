@@ -8,4 +8,5 @@ publish = false
 
 [dependencies]
 itertools = "0.10.5"
+ndarray = "0.15.6"
 pico-args = "0.5.0"
