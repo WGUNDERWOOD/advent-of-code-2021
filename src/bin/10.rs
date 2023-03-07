@@ -1,17 +1,16 @@
 fn get_first_illegal_char(s: &str) -> Option<char> {
     let mut delims = String::from("");
-
     if get_delim_type(s.chars().next().unwrap()) == Some(DelimType::Close) {
         return s.chars().next();
     }
-
     for c in s.chars() {
         let delim_type = get_delim_type(c).unwrap();
-
         match delim_type {
             DelimType::Open => delims.push_str(&String::from(c)),
             DelimType::Close => {
-                if delims.chars().last().unwrap() == get_match(c).unwrap() {
+                if delims.is_empty() {
+                    return Some(c);
+                } else if delims.chars().last().unwrap() == get_match(c).unwrap() {
                     delims = delims.split_at(delims.len() - 1).0.to_string();
                 } else {
                     return Some(c);
@@ -20,6 +19,15 @@ fn get_first_illegal_char(s: &str) -> Option<char> {
         }
     }
     None
+}
+
+fn get_first_illegal_char_rev(s: &str) -> Option<char> {
+    let rev_match_s = s
+        .chars()
+        .rev()
+        .map(|x| get_match(x).unwrap())
+        .collect::<String>();
+    get_first_illegal_char(&rev_match_s)
 }
 
 #[derive(PartialEq)]
@@ -52,7 +60,7 @@ fn get_delim_type(c: char) -> Option<DelimType> {
     }
 }
 
-fn get_error_score(c: Option<char>) -> Option<u32> {
+fn get_score_one(c: Option<char>) -> Option<u32> {
     match c {
         Some(')') => Some(3),
         Some(']') => Some(57),
@@ -63,45 +71,48 @@ fn get_error_score(c: Option<char>) -> Option<u32> {
     }
 }
 
-fn get_completion_string(s: &str) -> &str {
-    let mut j = 0;
-
-    while get_first_illegal_char(&s.chars().rev().collect::<String>()).is_some() && j < 100 {
-        let last_illegal = get_first_illegal_char(&s.chars().rev().collect::<String>());
-        j += 1;
+fn get_score_two(s: &str) -> u64 {
+    let mut score = 0u64;
+    for c in s.chars() {
+        score *= 5;
+        score += match c {
+            ')' => 1,
+            ']' => 2,
+            '}' => 3,
+            '>' => 4,
+            _ => 0,
+        };
     }
+    score
+}
 
-    println!("{}", &s);
-    println!("{}", &s.chars().rev().collect::<String>());
+fn get_completion_string(s: &str) -> String {
+    let mut completed_string = s.clone().to_string();
+    let mut completion_string = "".to_string();
+    let mut finished = false;
+    while !finished {
+        let last_illegal = get_first_illegal_char_rev(&completed_string);
 
-    //let mut incomplete_string = s.clone().to_string();
-    //let mut completion_string = "".to_string();
-
-    //while incomplete_string.len() > 0 {
-    //let next_char = get_match(incomplete_string.chars().last().unwrap()).unwrap();
-    //println!("{:?}", incomplete_string);
-    //println!("{}", next_char);
-    //completion_string.push(next_char);
-    //let new_incomplete_string = incomplete_string
-    //.split_at(incomplete_string.len() - 1)
-    //.0
-    //.to_string();
-    //incomplete_string = new_incomplete_string;
-    //}
-
-    //completion_string.to_string()
-    ""
+        match last_illegal {
+            Some(c) => {
+                completed_string.push_str(&String::from(c));
+                completion_string.push_str(&String::from(c));
+            }
+            None => finished = true,
+        };
+    }
+    completion_string
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
     let lines: Vec<&str> = input.split('\n').filter(|x| !x.is_empty()).collect();
     let first_illegals: Vec<Option<char>> =
         lines.iter().map(|x| get_first_illegal_char(x)).collect();
-    let error_scores: Vec<u32> = first_illegals
+    let scores: Vec<u32> = first_illegals
         .iter()
-        .map(|x| get_error_score(*x).unwrap())
+        .map(|x| get_score_one(*x).unwrap())
         .collect();
-    Some(error_scores.iter().sum())
+    Some(scores.iter().sum())
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
@@ -111,12 +122,14 @@ pub fn part_two(input: &str) -> Option<u32> {
         .filter(|x| get_first_illegal_char(x).is_none())
         .copied()
         .collect();
-    let incomplete = incompletes[0];
-    let completion_string = get_completion_string(incomplete);
-    println!("{:?}", completion_string);
-    //println!("{:?}", incompletes);
-
-    None
+    let mut scores: Vec<u64> = vec![];
+    for incomplete in incompletes {
+        let completion_string = get_completion_string(incomplete);
+        let score = get_score_two(&completion_string);
+        scores.push(score);
+    }
+    scores.sort();
+    Some(scores[scores.len() / 2] as u32)
 }
 
 fn main() {
