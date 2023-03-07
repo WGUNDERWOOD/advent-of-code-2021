@@ -1,9 +1,8 @@
 fn get_first_illegal_char(s: &str) -> Option<char> {
-
     let mut delims = String::from("");
 
     if get_delim_type(s.chars().next().unwrap()) == Some(DelimType::Close) {
-        return s.chars().next()
+        return s.chars().next();
     }
 
     for c in s.chars() {
@@ -65,7 +64,6 @@ fn get_error_score(c: Option<char>) -> Option<u32> {
 }
 
 fn get_completion_string(s: &str) -> &str {
-
     let mut j = 0;
 
     while get_first_illegal_char(&s.chars().rev().collect::<String>()).is_some() && j < 100 {
@@ -80,15 +78,15 @@ fn get_completion_string(s: &str) -> &str {
     //let mut completion_string = "".to_string();
 
     //while incomplete_string.len() > 0 {
-        //let next_char = get_match(incomplete_string.chars().last().unwrap()).unwrap();
-        //println!("{:?}", incomplete_string);
-        //println!("{}", next_char);
-        //completion_string.push(next_char);
-        //let new_incomplete_string = incomplete_string
-            //.split_at(incomplete_string.len() - 1)
-            //.0
-            //.to_string();
-        //incomplete_string = new_incomplete_string;
+    //let next_char = get_match(incomplete_string.chars().last().unwrap()).unwrap();
+    //println!("{:?}", incomplete_string);
+    //println!("{}", next_char);
+    //completion_string.push(next_char);
+    //let new_incomplete_string = incomplete_string
+    //.split_at(incomplete_string.len() - 1)
+    //.0
+    //.to_string();
+    //incomplete_string = new_incomplete_string;
     //}
 
     //completion_string.to_string()
