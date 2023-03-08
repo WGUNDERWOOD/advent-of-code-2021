@@ -1,4 +1,4 @@
-use std::cmp::{min, max};
+use std::cmp::{max, min};
 const N: usize = 10;
 
 fn parse_input(input: &str) -> Vec<Vec<u32>> {
@@ -17,8 +17,8 @@ fn parse_input(input: &str) -> Vec<Vec<u32>> {
 
 fn get_neighbors(i: usize, j: usize) -> Vec<(usize, usize)> {
     let mut neighbors: Vec<(usize, usize)> = vec![];
-    for ii in max(1,i)-1..=min(N-2,i)+1 {
-        for jj in max(1,j)-1..=min(N-2,j)+1 {
+    for ii in max(1, i) - 1..=min(N - 2, i) + 1 {
+        for jj in max(1, j) - 1..=min(N - 2, j) + 1 {
             if (ii, jj) != (i, j) {
                 neighbors.push((ii, jj))
             }
@@ -27,7 +27,7 @@ fn get_neighbors(i: usize, j: usize) -> Vec<(usize, usize)> {
     neighbors
 }
 
-fn contains_10(octopuses: &Vec<Vec<u32>>) -> bool{
+fn contains_10(octopuses: &Vec<Vec<u32>>) -> bool {
     let mut flag = false;
     for i in 0..N {
         for j in 0..N {
