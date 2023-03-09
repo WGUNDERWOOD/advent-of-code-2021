@@ -33,7 +33,7 @@ fn get_node(node: &str, id: u32) -> Node {
     } else {
         Position::Middle
     };
-    Node{id, size, position}
+    Node { id, size, position }
 }
 
 fn parse_input(input: &str) -> (Vec<Node>, Vec<(Node, Node)>) {
@@ -67,7 +67,7 @@ fn parse_input(input: &str) -> (Vec<Node>, Vec<(Node, Node)>) {
 fn find_start_node(nodes: &Vec<Node>) -> Option<Node> {
     for node in nodes {
         if node.position == Position::Start {
-            return Some(node.clone())
+            return Some(node.clone());
         }
     }
     None
@@ -79,7 +79,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     let mut paths: Vec<Vec<Node>> = vec![];
     while paths_queue.len() > 0 {
         let path = paths_queue.pop().unwrap();
-        let node = &path[path.len()-1];
+        let node = &path[path.len() - 1];
         if node.position == Position::End {
             paths.push(path)
         } else {
@@ -99,26 +99,28 @@ pub fn part_one(input: &str) -> Option<u32> {
 
 pub fn part_two(input: &str) -> Option<u32> {
     let (nodes, edges) = parse_input(&input);
-    let mut paths_queue: Vec<(Vec<Node>, bool)> = vec![(vec![find_start_node(&nodes).unwrap()], false)];
+    let mut paths_queue: Vec<(Vec<Node>, bool)> =
+        vec![(vec![find_start_node(&nodes).unwrap()], false)];
     let mut paths: Vec<Vec<Node>> = vec![];
     while paths_queue.len() > 0 {
         let (path, twice) = paths_queue.pop().unwrap();
-        let node = &path[path.len()-1];
+        let node = &path[path.len() - 1];
         if node.position == Position::End {
             paths.push(path)
         } else {
             for edge in &edges {
                 if edge.0 == *node {
-                    if edge.1.size == Size::Big ||
-                        !path.contains(&edge.1) ||
-                        edge.1.position == Position::Middle && !twice {
-                            let mut new_path = path.clone();
-                            new_path.push(edge.1.clone());
-                            if edge.1.size == Size::Small && path.contains(&edge.1) {
-                                paths_queue.push((new_path, true));
-                            } else {
-                                paths_queue.push((new_path, twice));
-                            }
+                    if edge.1.size == Size::Big
+                        || !path.contains(&edge.1)
+                        || edge.1.position == Position::Middle && !twice
+                    {
+                        let mut new_path = path.clone();
+                        new_path.push(edge.1.clone());
+                        if edge.1.size == Size::Small && path.contains(&edge.1) {
+                            paths_queue.push((new_path, true));
+                        } else {
+                            paths_queue.push((new_path, twice));
+                        }
                     }
                 }
             }
