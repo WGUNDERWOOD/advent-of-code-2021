@@ -40,6 +40,21 @@ enum Direction {
     Y,
 }
 
+fn display(dots: &HashMap<Dot, bool>) {
+    let x_max: u32 = dots.keys().map(|k| k.x).max().unwrap();
+    let y_max: u32 = dots.keys().map(|k| k.y).max().unwrap();
+    for y in 0..=y_max {
+        for x in 0..=x_max {
+            if dots.contains_key(&Dot { x, y }) {
+                print!("■");
+            } else {
+                print!(" ");
+            }
+        }
+        print!("\n");
+    }
+}
+
 fn do_fold(fold: Fold, dots: &mut HashMap<Dot, bool>) {
     let mut dots_to_remove: Vec<Dot> = vec![];
     let mut dots_to_insert: Vec<Dot> = vec![];
@@ -59,10 +74,10 @@ fn do_fold(fold: Fold, dots: &mut HashMap<Dot, bool>) {
         }
         Direction::Y => {
             for dot in dots.keys() {
-                if dot.x > fold.position {
+                if dot.y > fold.position {
                     let new_dot = Dot {
-                        x: 2 * fold.position - dot.x,
-                        y: dot.y,
+                        x: dot.x,
+                        y: 2 * fold.position - dot.y,
                     };
                     dots_to_insert.push(new_dot);
                     dots_to_remove.push(dot.clone());
@@ -103,12 +118,12 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    //for fold in folds {
-    //do_fold(fold, &mut dots);
-    //println!("{:?}", &dots);
-    //println!("{}", dots.len());
-    //}
-    None
+    let (mut dots, folds) = parse_input(&input);
+    for fold in folds {
+        do_fold(fold, &mut dots);
+    }
+    display(&dots);
+    Some(0)
 }
 
 fn main() {
@@ -130,6 +145,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 13);
-        assert_eq!(part_two(&input), Some("O"));
+        assert_eq!(part_two(&input), Some(0));
     }
 }
