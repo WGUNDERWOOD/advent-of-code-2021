@@ -20,9 +20,7 @@ fn insert_or_increment_counts(polymer_counts: &mut PolymerCounts, c: char, incre
 }
 
 fn parse_polymer_counts(input: &str) -> PolymerCounts {
-    let polymer_list: Vec<char> = input
-        .split("\n\n")
-        .collect::<Vec<&str>>()[0]
+    let polymer_list: Vec<char> = input.split("\n\n").collect::<Vec<&str>>()[0]
         .chars()
         .collect();
     let mut polymer_counts: PolymerCounts = HashMap::new();
@@ -34,24 +32,20 @@ fn parse_polymer_counts(input: &str) -> PolymerCounts {
 }
 
 fn parse_polymer(input: &str) -> Polymer {
-    let polymer_list: Vec<char> = input
-        .split("\n\n")
-        .collect::<Vec<&str>>()[0]
+    let polymer_list: Vec<char> = input.split("\n\n").collect::<Vec<&str>>()[0]
         .chars()
         .collect();
     let mut polymer: Polymer = HashMap::new();
-    for i in 0..polymer_list.len()-1 {
+    for i in 0..polymer_list.len() - 1 {
         let c1 = polymer_list[i];
-        let c2 = polymer_list[i+1];
+        let c2 = polymer_list[i + 1];
         insert_or_increment(&mut polymer, (c1, c2), 1)
     }
     polymer
 }
 
 fn parse_rules(input: &str) -> Rules {
-    let rules_list: Vec<&str> = input
-        .split("\n\n")
-        .collect::<Vec<&str>>()[1]
+    let rules_list: Vec<&str> = input.split("\n\n").collect::<Vec<&str>>()[1]
         .split("\n")
         .filter(|x| !x.is_empty())
         .collect();
