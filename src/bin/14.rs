@@ -16,6 +16,15 @@ fn parse_input(input: &str) -> (String, HashMap<(char, char), char>) {
     return (polymer, rules)
 }
 
+fn most_common_char() {
+    // TODO
+}
+
+fn least_common_char() {
+    // TODO
+}
+
+
 fn iterate_polymer(polymer: &str, rules: &HashMap<(char, char), char>) -> String {
     let mut new_polymer = "".to_string();
 
@@ -29,21 +38,24 @@ fn iterate_polymer(polymer: &str, rules: &HashMap<(char, char), char>) -> String
             new_polymer.push(rules[&(c1, c2)]);
         }
 
-        new_polymer.push(c2);
     }
+
+    let c_last = polymer.chars().last().unwrap();
+    new_polymer.push(c_last);
 
     return new_polymer
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
     let (mut polymer, rules) = parse_input(input);
-    //println!("{:?}", rules);
-    //println!("{:?}", polymer);
-    for rep in 0..8 {
-        println!("{:?}", polymer);
+    println!("{:?}", polymer);
+    //dbg!(&rules);
+
+    for rep in 0..3 {
         polymer = iterate_polymer(&polymer, &rules);
+        println!("{:?}", polymer);
     }
-        println!("{:?}", polymer.len());
+
     None
 }
 
