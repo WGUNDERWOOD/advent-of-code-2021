@@ -16,12 +16,29 @@ fn parse_input(input: &str) -> (String, HashMap<(char, char), char>) {
     return (polymer, rules)
 }
 
-fn most_common_char() {
-    // TODO
-}
+fn get_most_least_common_char(s: &str) -> (u32, u32) {
+    let mut h: HashMap<char, u32> = HashMap::new();
+    for c in s.chars() {
+        if h.contains_key(&c) {
+            *h.get_mut(&c).unwrap() += 1
+        } else {
+            h.insert(c, 1);
+        }
+    }
 
-fn least_common_char() {
-    // TODO
+    let mut most_common = 0;
+    let mut least_common = u32::MAX;
+
+    for k in h.keys() {
+        if h[k] > most_common {
+            most_common = h[k];
+        }
+
+        if h[k] < least_common {
+            least_common = h[k];
+        }
+    }
+    (most_common, least_common)
 }
 
 
@@ -48,19 +65,21 @@ fn iterate_polymer(polymer: &str, rules: &HashMap<(char, char), char>) -> String
 
 pub fn part_one(input: &str) -> Option<u32> {
     let (mut polymer, rules) = parse_input(input);
-    println!("{:?}", polymer);
-    //dbg!(&rules);
-
-    for rep in 0..3 {
+    for rep in 0..10 {
         polymer = iterate_polymer(&polymer, &rules);
-        println!("{:?}", polymer);
     }
-
-    None
+    let (most_common, least_common) = get_most_least_common_char(&polymer);
+    Some(most_common - least_common)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let (mut polymer, rules) = parse_input(input);
+    for rep in 0..20 {
+        polymer = iterate_polymer(&polymer, &rules);
+        println!("{}", polymer.len())
+    }
+    let (most_common, least_common) = get_most_least_common_char(&polymer);
+    Some(most_common - least_common)
 }
 
 fn main() {
