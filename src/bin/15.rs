@@ -22,6 +22,21 @@ fn parse_cavern(input: &str) -> Vec<Vec<i32>> {
     return cavern;
 }
 
+fn get_enlarged_cavern(cavern: &Vec<Vec<i32>>, factor: i32) -> Vec<Vec<i32>> {
+
+    let n = cavern.len();
+    let enlarged_n = factor as usize * n;
+    let mut enlarged_cavern: Vec<Vec<i32>> = vec![vec![0; enlarged_n]; enlarged_n];
+
+    for i in 0..enlarged_n {
+        for j in 0..enlarged_n {
+            let increment = (i / n + j / n) as i32;
+            enlarged_cavern[i][j] = (cavern[i % n][j % n] + increment - 1) % 9 + 1;
+        }
+    }
+    return enlarged_cavern
+}
+
 fn get_neighbors(current: (i32, i32), n: i32) -> HashMap<(i32, i32), bool> {
     let mut neighbors: HashMap<(i32, i32), bool> = HashMap::new();
     for i in [current.0 - 1, current.0 + 1] {
@@ -37,7 +52,7 @@ fn get_neighbors(current: (i32, i32), n: i32) -> HashMap<(i32, i32), bool> {
     return neighbors;
 }
 
-fn get_best_risk(cavern: Vec<Vec<i32>>) -> i32 {
+fn get_best_risk(cavern: &Vec<Vec<i32>>) -> i32 {
     let n = cavern.len();
 
     // initialize unvisited set
@@ -87,12 +102,15 @@ fn get_best_risk(cavern: Vec<Vec<i32>>) -> i32 {
 
 pub fn part_one(input: &str) -> Option<u32> {
     let cavern = parse_cavern(input);
-    let best_risk = get_best_risk(cavern);
+    let best_risk = get_best_risk(&cavern);
     return Some(best_risk as u32);
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let cavern = parse_cavern(input);
+    let enlarged_cavern = get_enlarged_cavern(&cavern, 2);
+    let best_risk = get_best_risk(&enlarged_cavern);
+    return Some(best_risk as u32);
 }
 
 fn main() {
@@ -114,6 +132,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 15);
-        assert_eq!(part_two(&input), None);
+        assert_eq!(part_two(&input), Some(315));
     }
 }
