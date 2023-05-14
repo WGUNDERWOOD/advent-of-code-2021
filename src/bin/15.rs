@@ -1,5 +1,6 @@
-use core::f32::INFINITY;
+use std::cmp::Ordering;
 use std::collections::HashMap;
+use std::collections::BinaryHeap;
 
 fn parse_cavern(input: &str) -> Vec<Vec<i32>> {
     let cavern_rows = input
@@ -52,64 +53,94 @@ fn get_neighbors(current: (i32, i32), n: i32) -> HashMap<(i32, i32), bool> {
     return neighbors;
 }
 
-fn get_best_risk(cavern: &Vec<Vec<i32>>) -> i32 {
-    let n = cavern.len();
+#[derive(Copy, Clone)]
+struct Edge {
+    node: i32,
+    risk: i32,
+}
 
-    // initialize unvisited set
-    let mut unvisited: HashMap<(i32, i32), bool> = HashMap::new();
+#[derive(Eq, PartialEq, Copy, Clone)]
+struct State {
+    node: i32,
+    dist: i32,
+}
+
+impl Ord for State {
+    fn cmp(&self, other: &Self) -> Ordering {
+        other.dist.cmp(&self.dist)
+    }
+}
+
+impl PartialOrd for State {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+
+}
+
+fn get_nodes_edges(cavern: Vec<Vec<i32>>) -> (Vec<i32>, Vec<Vec<Edge>>) {
+
+    let n = cavern.len() as i32;
+
+    let nodes: Vec<i32> = (0..n*n).map(|x| x as i32).collect();
+    let mut edges: Vec<Vec<Edge>> = vec![];
+
     for i in 0..n {
         for j in 0..n {
-            unvisited.insert((i as i32, j as i32), true);
+        let mut node_edges: Vec<Edge> = vec![];
+            let neighbors = get_neighbors((i as i32, j as i32), n as i32);
+            for position in neighbors.keys() {
+                let node = n * position.0 + position.1;
+                let risk = cavern[position.0 as usize][position.1 as usize];
+                let edge = Edge{ node, risk };
+                node_edges.push(edge)
+            }
+            edges.push(node_edges);
         }
     }
 
-    // initialize distances and current position
-    let mut distances: Vec<Vec<f32>> = vec![vec![INFINITY; n]; n];
-    distances[0][0] = 0.0;
-    let mut current: (i32, i32) = (0, 0);
-    let mut terminated = false;
+    return (nodes, edges)
+}
 
-    // dijkstra's algorithm
-    while !terminated {
-        for neighbor in get_neighbors(current, n as i32).keys() {
-            if unvisited.contains_key(neighbor) {
-                let tentative_distance = distances[current.0 as usize][current.1 as usize]
-                    + cavern[neighbor.0 as usize][neighbor.1 as usize] as f32;
-                if tentative_distance <= distances[neighbor.0 as usize][neighbor.1 as usize] {
-                    distances[neighbor.0 as usize][neighbor.1 as usize] = tentative_distance
-                }
+
+fn get_best_risk(nodes: &Vec<i32>, edges: &Vec<Vec<Edge>>) -> i32 {
+
+    let n = nodes.len() as i32;
+    let mut checking: BinaryHeap<State> = BinaryHeap::new();
+    checking.push(State{node: 0, dist: 0});
+
+    let mut distances: Vec<i32> = nodes.iter().map(|_| i32::MAX).collect();
+    distances[0] = 0;
+
+    while let Some(State{node, dist}) = checking.pop() {
+
+        if node == n - 1 { return dist }
+
+        for edge in &edges[node as usize] {
+            let next = State{node: edge.node, dist: edge.risk + dist};
+
+            if next.dist < distances[next.node as usize] {
+                checking.push(next);
+                distances[next.node as usize] = next.dist;
             }
-        }
-
-        unvisited.remove(&current);
-
-        if unvisited.contains_key(&(n as i32 - 1, n as i32 - 1)) {
-            let mut closest_unvisited: f32 = INFINITY;
-            for point in unvisited.keys() {
-                let new_dist = distances[point.0 as usize][point.1 as usize];
-                if new_dist < closest_unvisited {
-                    current = *point;
-                    closest_unvisited = new_dist;
-                }
-            }
-        } else {
-            terminated = true;
         }
     }
 
-    return distances[n - 1][n - 1] as i32;
+    return distances[(n-1) as usize];
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
     let cavern = parse_cavern(input);
-    let best_risk = get_best_risk(&cavern);
+    let (nodes, edges) = get_nodes_edges(cavern);
+    let best_risk = get_best_risk(&nodes, &edges);
     return Some(best_risk as u32);
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
     let cavern = parse_cavern(input);
-    let enlarged_cavern = get_enlarged_cavern(&cavern, 2);
-    let best_risk = get_best_risk(&enlarged_cavern);
+    let enlarged_cavern = get_enlarged_cavern(&cavern, 5);
+    let (nodes, edges) = get_nodes_edges(enlarged_cavern);
+    let best_risk = get_best_risk(&nodes, &edges);
     return Some(best_risk as u32);
 }
 
