@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
-use std::collections::HashMap;
 use std::collections::BinaryHeap;
+use std::collections::HashMap;
 
 fn parse_cavern(input: &str) -> Vec<Vec<i32>> {
     let cavern_rows = input
@@ -24,7 +24,6 @@ fn parse_cavern(input: &str) -> Vec<Vec<i32>> {
 }
 
 fn get_enlarged_cavern(cavern: &Vec<Vec<i32>>, factor: i32) -> Vec<Vec<i32>> {
-
     let n = cavern.len();
     let enlarged_n = factor as usize * n;
     let mut enlarged_cavern: Vec<Vec<i32>> = vec![vec![0; enlarged_n]; enlarged_n];
@@ -35,7 +34,7 @@ fn get_enlarged_cavern(cavern: &Vec<Vec<i32>>, factor: i32) -> Vec<Vec<i32>> {
             enlarged_cavern[i][j] = (cavern[i % n][j % n] + increment - 1) % 9 + 1;
         }
     }
-    return enlarged_cavern
+    return enlarged_cavern;
 }
 
 fn get_neighbors(current: (i32, i32), n: i32) -> HashMap<(i32, i32), bool> {
@@ -75,49 +74,49 @@ impl PartialOrd for State {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
-
 }
 
 fn get_nodes_edges(cavern: Vec<Vec<i32>>) -> (Vec<i32>, Vec<Vec<Edge>>) {
-
     let n = cavern.len() as i32;
 
-    let nodes: Vec<i32> = (0..n*n).map(|x| x as i32).collect();
+    let nodes: Vec<i32> = (0..n * n).map(|x| x as i32).collect();
     let mut edges: Vec<Vec<Edge>> = vec![];
 
     for i in 0..n {
         for j in 0..n {
-        let mut node_edges: Vec<Edge> = vec![];
+            let mut node_edges: Vec<Edge> = vec![];
             let neighbors = get_neighbors((i as i32, j as i32), n as i32);
             for position in neighbors.keys() {
                 let node = n * position.0 + position.1;
                 let risk = cavern[position.0 as usize][position.1 as usize];
-                let edge = Edge{ node, risk };
+                let edge = Edge { node, risk };
                 node_edges.push(edge)
             }
             edges.push(node_edges);
         }
     }
 
-    return (nodes, edges)
+    return (nodes, edges);
 }
 
-
 fn get_best_risk(nodes: &Vec<i32>, edges: &Vec<Vec<Edge>>) -> i32 {
-
     let n = nodes.len() as i32;
     let mut checking: BinaryHeap<State> = BinaryHeap::new();
-    checking.push(State{node: 0, dist: 0});
+    checking.push(State { node: 0, dist: 0 });
 
     let mut distances: Vec<i32> = nodes.iter().map(|_| i32::MAX).collect();
     distances[0] = 0;
 
-    while let Some(State{node, dist}) = checking.pop() {
-
-        if node == n - 1 { return dist }
+    while let Some(State { node, dist }) = checking.pop() {
+        if node == n - 1 {
+            return dist;
+        }
 
         for edge in &edges[node as usize] {
-            let next = State{node: edge.node, dist: edge.risk + dist};
+            let next = State {
+                node: edge.node,
+                dist: edge.risk + dist,
+            };
 
             if next.dist < distances[next.node as usize] {
                 checking.push(next);
@@ -126,7 +125,7 @@ fn get_best_risk(nodes: &Vec<i32>, edges: &Vec<Vec<Edge>>) -> i32 {
         }
     }
 
-    return distances[(n-1) as usize];
+    return distances[(n - 1) as usize];
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
