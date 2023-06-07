@@ -148,13 +148,15 @@ fn evaluate_packet(packet: &Packet) -> i64 {
         6 => (values[0] < values[1]) as i64,
         7 => (values[0] == values[1]) as i64,
         _ => 0,
-    }
+    };
 }
 
 fn sum_versions(packet: &Packet) -> i32 {
     match packet {
         Packet::LiteralPacket(ref p) => p.version,
-        Packet::OperatorPacket(ref p) => p.version + p.subpackets.iter().map(sum_versions).sum::<i32>(),
+        Packet::OperatorPacket(ref p) => {
+            p.version + p.subpackets.iter().map(sum_versions).sum::<i32>()
+        }
     }
 }
 
