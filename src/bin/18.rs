@@ -18,11 +18,16 @@ fn explode(snailfish: &mut Vec<String>) -> bool {
         if c == "]" {
             bracket_count -= 1
         };
-        if bracket_count >= 5 && is_int(&snailfish[i+1]) {
+        //dbg!(c);
+        if bracket_count >= 5 && is_int(&snailfish[i + 1]) {
             explode_comma_location = i + 2;
             flag = true;
             break;
         };
+    }
+
+    if !flag {
+        return false;
     }
 
     // find previous int
@@ -59,28 +64,113 @@ fn explode(snailfish: &mut Vec<String>) -> bool {
     }
 
     // drop old pair
-    snailfish[explode_comma_location - 1] = "0".to_string();
-    snailfish[explode_comma_location] = "".to_string();
-    snailfish[explode_comma_location + 1] = "".to_string();
+    for i in 0..4 {
+        snailfish[explode_comma_location - 2 + i] = "".to_string();
+    }
+    snailfish[explode_comma_location + 2] = "0".to_string();
     snailfish.retain(|x| !x.is_empty());
+    //dbg!(explode_comma_location);
     return flag;
+}
+
+fn split(snailfish: &mut Vec<String>) -> bool {
+    let mut flag = false;
+    let mut int_value: i32 = 0;
+
+    // find where to split
+    let mut split_location = 0;
+    for i in 0..snailfish.len() {
+        if is_int(&snailfish[i]) {
+            int_value = snailfish[i].parse().unwrap();
+            if int_value >= 10 {
+                split_location = i;
+                flag = true;
+                break;
+            }
+        };
+    }
+
+    if !flag {return false};
+
+    let new_left = int_value / 2;
+    let new_right = (int_value + 1) / 2;
+    snailfish[split_location] = "]".to_string();
+    snailfish.insert(split_location, new_right.to_string());
+    snailfish.insert(split_location, ",".to_string());
+    snailfish.insert(split_location, new_left.to_string());
+    snailfish.insert(split_location, "[".to_string());
+    return flag;
+}
+
+fn reduce(snailfish: &mut Vec<String>) -> bool {
+    if explode(snailfish) {
+        return true
+    };
+    if split(snailfish) {
+        return true
+    };
+    return false;
+}
+
+fn get_magnitude(snailfish: &mut Vec<String>) -> i32 {
+
+    let value: i32;
+
+    // if just one value, return it
+    if snailfish.len() == 1 {
+        value = snailfish[0].parse().unwrap();
+        return value
+    };
+
+    // otherwise find central comma
+    let mut central_comma_location = 0;
+    let mut bracket_count = 0;
+    for i in 1..snailfish.len() {
+        let c = &snailfish[i];
+        if c == "[" {
+            bracket_count += 1
+        };
+        if c == "]" {
+            bracket_count -= 1
+        };
+        if bracket_count == 0 {
+            central_comma_location = i + 1;
+            break;
+        };
+    }
+
+    // recurse
+    let left = &mut snailfish[1..central_comma_location].to_vec();
+    let right = &mut snailfish[central_comma_location+1..snailfish.len()-1].to_vec();
+    let value = 3 * get_magnitude(left) + 2 * get_magnitude(right);
+    return value
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
     let snailfishes: Vec<Vec<String>> = input
         .split("\n")
-        .map(|x| x.split("").filter(|x| !x.is_empty()).map(|x| x.to_string()).collect())
-        .collect();
+    .filter(|x| !x.is_empty())
+        .map(|x| {
+            x.split("")
+                .filter(|x| !x.is_empty())
+                .map(|x| x.to_string())
+                .collect()
+        })
+        .collect()
+        ;
     let mut snailfish = snailfishes[0].clone();
-    //let mut snailfish = "".to_string();
-    //for summand in snailfishes.iter() {
-    //snailfish.push_str(summand);
-    //explode(&mut snailfish);
-    //}
-    dbg!(&snailfish);
-    explode(&mut snailfish);
-    dbg!(snailfish);
-    None
+    for i in 1..snailfishes.len() {
+        let mut summand = snailfishes[i].clone();
+        snailfish.insert(0, "[".to_string());
+        snailfish.push(",".to_string());
+        snailfish.append(&mut summand);
+        snailfish.push("]".to_string());
+        while reduce(&mut snailfish) {
+            //dbg!(&snailfish.join(""));
+        };
+    }
+    let magnitude = get_magnitude(&mut snailfish);
+    return Some(magnitude.try_into().unwrap())
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
