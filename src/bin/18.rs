@@ -5,7 +5,6 @@ fn is_int(s: &String) -> bool {
 
 fn explode(snailfish: &mut Vec<String>) -> bool {
     let mut bracket_count = 0;
-    let mut next_int_location = 0;
     let mut flag = false;
 
     // find where to explode
@@ -90,7 +89,9 @@ fn split(snailfish: &mut Vec<String>) -> bool {
         };
     }
 
-    if !flag {return false};
+    if !flag {
+        return false;
+    };
 
     let new_left = int_value / 2;
     let new_right = (int_value + 1) / 2;
@@ -104,22 +105,21 @@ fn split(snailfish: &mut Vec<String>) -> bool {
 
 fn reduce(snailfish: &mut Vec<String>) -> bool {
     if explode(snailfish) {
-        return true
+        return true;
     };
     if split(snailfish) {
-        return true
+        return true;
     };
     return false;
 }
 
 fn get_magnitude(snailfish: &mut Vec<String>) -> i32 {
-
     let value: i32;
 
     // if just one value, return it
     if snailfish.len() == 1 {
         value = snailfish[0].parse().unwrap();
-        return value
+        return value;
     };
 
     // otherwise find central comma
@@ -141,23 +141,22 @@ fn get_magnitude(snailfish: &mut Vec<String>) -> i32 {
 
     // recurse
     let left = &mut snailfish[1..central_comma_location].to_vec();
-    let right = &mut snailfish[central_comma_location+1..snailfish.len()-1].to_vec();
+    let right = &mut snailfish[central_comma_location + 1..snailfish.len() - 1].to_vec();
     let value = 3 * get_magnitude(left) + 2 * get_magnitude(right);
-    return value
+    return value;
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
     let snailfishes: Vec<Vec<String>> = input
         .split("\n")
-    .filter(|x| !x.is_empty())
+        .filter(|x| !x.is_empty())
         .map(|x| {
             x.split("")
                 .filter(|x| !x.is_empty())
                 .map(|x| x.to_string())
                 .collect()
         })
-        .collect()
-        ;
+        .collect();
     let mut snailfish = snailfishes[0].clone();
     for i in 1..snailfishes.len() {
         let mut summand = snailfishes[i].clone();
@@ -167,14 +166,42 @@ pub fn part_one(input: &str) -> Option<u32> {
         snailfish.push("]".to_string());
         while reduce(&mut snailfish) {
             //dbg!(&snailfish.join(""));
-        };
+        }
     }
     let magnitude = get_magnitude(&mut snailfish);
-    return Some(magnitude.try_into().unwrap())
+    return Some(magnitude.try_into().unwrap());
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let snailfishes: Vec<Vec<String>> = input
+        .split("\n")
+        .filter(|x| !x.is_empty())
+        .map(|x| {
+            x.split("")
+                .filter(|x| !x.is_empty())
+                .map(|x| x.to_string())
+                .collect()
+        })
+    .collect();
+    let mut best_magnitude = 0;
+    for i in 0..snailfishes.len() {
+        for j in 0..snailfishes.len() {
+            if i != j {
+                let mut snailfish = snailfishes[i].clone();
+                let mut summand = snailfishes[j].clone();
+                snailfish.insert(0, "[".to_string());
+                snailfish.push(",".to_string());
+                snailfish.append(&mut summand);
+                snailfish.push("]".to_string());
+                while reduce(&mut snailfish) {
+                    //dbg!(&snailfish.join(""));
+                }
+                let magnitude = get_magnitude(&mut snailfish);
+                if magnitude > best_magnitude {best_magnitude = magnitude}
+            }
+        }
+    }
+    return Some(best_magnitude.try_into().unwrap());
 }
 
 fn main() {
@@ -196,6 +223,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let input = advent_of_code::read_file("examples", 18);
-        assert_eq!(part_two(&input), None);
+        assert_eq!(part_two(&input), Some(3993));
     }
 }
