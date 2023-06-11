@@ -17,7 +17,6 @@ fn explode(snailfish: &mut Vec<String>) -> bool {
         if c == "]" {
             bracket_count -= 1
         };
-        //dbg!(c);
         if bracket_count >= 5 && is_int(&snailfish[i + 1]) {
             explode_comma_location = i + 2;
             flag = true;
@@ -68,7 +67,6 @@ fn explode(snailfish: &mut Vec<String>) -> bool {
     }
     snailfish[explode_comma_location + 2] = "0".to_string();
     snailfish.retain(|x| !x.is_empty());
-    //dbg!(explode_comma_location);
     return flag;
 }
 
@@ -164,9 +162,7 @@ pub fn part_one(input: &str) -> Option<u32> {
         snailfish.push(",".to_string());
         snailfish.append(&mut summand);
         snailfish.push("]".to_string());
-        while reduce(&mut snailfish) {
-            //dbg!(&snailfish.join(""));
-        }
+        while reduce(&mut snailfish) {}
     }
     let magnitude = get_magnitude(&mut snailfish);
     return Some(magnitude.try_into().unwrap());
@@ -182,7 +178,7 @@ pub fn part_two(input: &str) -> Option<u32> {
                 .map(|x| x.to_string())
                 .collect()
         })
-    .collect();
+        .collect();
     let mut best_magnitude = 0;
     for i in 0..snailfishes.len() {
         for j in 0..snailfishes.len() {
@@ -193,11 +189,11 @@ pub fn part_two(input: &str) -> Option<u32> {
                 snailfish.push(",".to_string());
                 snailfish.append(&mut summand);
                 snailfish.push("]".to_string());
-                while reduce(&mut snailfish) {
-                    //dbg!(&snailfish.join(""));
-                }
+                while reduce(&mut snailfish) {}
                 let magnitude = get_magnitude(&mut snailfish);
-                if magnitude > best_magnitude {best_magnitude = magnitude}
+                if magnitude > best_magnitude {
+                    best_magnitude = magnitude
+                }
             }
         }
     }
