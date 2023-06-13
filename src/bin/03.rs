@@ -5,8 +5,8 @@ fn get_most_common(binaries: &Vec<Vec<bool>>) -> Vec<bool> {
 
     for j in 0..l {
         let mut counter = 0;
-        for i in 0..n {
-            if binaries[i][j] {
+        for binary in binaries.iter() {
+            if binary[j] {
                 counter += 1;
             }
         }
@@ -18,11 +18,9 @@ fn get_most_common(binaries: &Vec<Vec<bool>>) -> Vec<bool> {
 fn to_decimal(binary: &Vec<bool>) -> u32 {
     let mut decimal: u32 = 0;
     let l = binary.len();
-    for j in 0..l {
+    for (j, b) in binary.iter().enumerate() {
         let power: u32 = (l - j - 1).try_into().unwrap();
-        if binary[j] {
-            decimal += 2_u32.pow(power)
-        }
+        if *b { decimal += 2_u32.pow(power) }
     }
     decimal
 }
@@ -62,8 +60,8 @@ fn filter_most_common(binaries: &Vec<Vec<bool>>, mostleast: MostLeast) -> Vec<bo
         }
 
         let common = match mostleast {
-            MostLeast::Most => counter >= k - counter,
-            MostLeast::Least => counter < k - counter,
+            MostLeast::Most => counter >= k.wrapping_sub(counter),
+            MostLeast::Least => counter < k.wrapping_sub(counter),
         };
 
         ind_list.retain(|x| binaries[*x][j] == common);
@@ -75,16 +73,16 @@ fn filter_most_common(binaries: &Vec<Vec<bool>>, mostleast: MostLeast) -> Vec<bo
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let binaries = get_binaries(&input);
+    let binaries = get_binaries(input);
     let most_common = get_most_common(&binaries);
     let gamma = to_decimal(&most_common);
-    let least_common: Vec<bool> = most_common.clone().iter().map(|x| !x).collect();
+    let least_common: Vec<bool> = most_common.iter().map(|x| !x).collect();
     let epsilon = to_decimal(&least_common);
     Some(gamma * epsilon)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let binaries = get_binaries(&input);
+    let binaries = get_binaries(input);
     let filtered_most_common = filter_most_common(&binaries, MostLeast::Most);
     let oxygen = to_decimal(&filtered_most_common);
     let filtered_least_common = filter_most_common(&binaries, MostLeast::Least);

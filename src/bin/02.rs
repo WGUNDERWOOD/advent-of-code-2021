@@ -8,7 +8,7 @@ pub fn part_one(input: &str) -> Option<i32> {
         (depth, horiz) = move_submarine(instruction, depth, horiz);
     }
 
-    return Some(depth * horiz);
+    Some(depth * horiz)
 }
 
 pub fn part_two(input: &str) -> Option<i32> {
@@ -22,7 +22,7 @@ pub fn part_two(input: &str) -> Option<i32> {
         (aim, depth, horiz) = aim_submarine(instruction, aim, depth, horiz);
     }
 
-    return Some(depth * horiz);
+    Some(depth * horiz)
 }
 
 fn main() {
@@ -32,10 +32,10 @@ fn main() {
 }
 
 fn format_input(l: &str) -> (&str, i32) {
-    let split_l: Vec<&str> = l.split(" ").collect();
+    let split_l: Vec<&str> = l.split(' ').collect();
     let direction: &str = split_l[0];
     let distance: i32 = split_l[1].parse().unwrap();
-    return (direction, distance);
+    (direction, distance)
 }
 
 fn move_submarine(instruction: (&str, i32), depth: i32, horiz: i32) -> (i32, i32) {
@@ -49,7 +49,7 @@ fn move_submarine(instruction: (&str, i32), depth: i32, horiz: i32) -> (i32, i32
         &_ => (),
     }
 
-    return (new_depth, new_horiz);
+    (new_depth, new_horiz)
 }
 
 fn aim_submarine(instruction: (&str, i32), aim: i32, depth: i32, horiz: i32) -> (i32, i32, i32) {
@@ -67,7 +67,7 @@ fn aim_submarine(instruction: (&str, i32), aim: i32, depth: i32, horiz: i32) -> 
         &_ => (),
     }
 
-    return (new_aim, new_depth, new_horiz);
+    (new_aim, new_depth, new_horiz)
 }
 
 #[cfg(test)]

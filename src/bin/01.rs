@@ -6,7 +6,7 @@ pub fn part_one(input: &str) -> Option<i32> {
             counter += 1
         }
     }
-    return Some(counter);
+    Some(counter)
 }
 
 pub fn part_two(input: &str) -> Option<i32> {
@@ -19,7 +19,7 @@ pub fn part_two(input: &str) -> Option<i32> {
             counter += 1
         }
     }
-    return Some(counter);
+    Some(counter)
 }
 
 fn main() {

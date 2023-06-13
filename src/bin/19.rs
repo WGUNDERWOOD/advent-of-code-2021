@@ -3,16 +3,14 @@ type Scanner = Vec<Vec<i32>>;
 fn parse_scanners(input: &str) -> Vec<Scanner> {
     let scanners: Vec<Scanner> = input
         .split("\n\n")
-        .map(|x|
-             x.split("\n")
-             .filter(|x| !x.contains("---"))
-             .map(|x|
-                  x.split(",")
-                  .map(|x| x.parse().unwrap())
-                  .collect())
-             .collect())
+        .map(|x| {
+            x.split("\n")
+                .filter(|x| !x.contains("---"))
+                .map(|x| x.split(",").map(|x| x.parse().unwrap()).collect())
+                .collect()
+        })
         .collect();
-    return scanners
+    return scanners;
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
