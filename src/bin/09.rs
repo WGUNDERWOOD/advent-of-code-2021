@@ -49,7 +49,7 @@ fn get_destination(i: usize, j: usize, height_map: &Vec<Vec<u32>>) -> (usize, us
     let mut new_j = j;
 
     for _ in 0..10 {
-        let neighbors = get_neighbors(new_i, new_j, &height_map);
+        let neighbors = get_neighbors(new_i, new_j, height_map);
         for neighbor in neighbors {
             if height_map[neighbor.0][neighbor.1] < height_map[new_i][new_j] {
                 new_i = neighbor.0;
@@ -85,10 +85,11 @@ pub fn part_two(input: &str) -> Option<u32> {
             if height_map[i][j] != 9 {
                 let (dest_i, dest_j) = get_destination(i, j, &height_map);
 
-                if basins.contains_key(&(dest_i, dest_j)) {
-                    *basins.get_mut(&(dest_i, dest_j)).unwrap() += 1;
+                if let std::collections::hash_map::Entry::Vacant(e) = basins.entry((dest_i, dest_j))
+                {
+                    e.insert(1);
                 } else {
-                    basins.insert((dest_i, dest_j), 1);
+                    *basins.get_mut(&(dest_i, dest_j)).unwrap() += 1;
                 }
             }
         }

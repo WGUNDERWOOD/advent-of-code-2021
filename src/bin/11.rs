@@ -27,11 +27,11 @@ fn get_neighbors(i: usize, j: usize) -> Vec<(usize, usize)> {
     neighbors
 }
 
-fn contains_10(octopuses: &Vec<Vec<u32>>) -> bool {
+fn contains_10(octopuses: &[Vec<u32>]) -> bool {
     let mut flag = false;
-    for i in 0..N {
-        for j in 0..N {
-            if octopuses[i][j] == 10 {
+    for octopus in octopuses.iter() {
+        for octo in octopus.iter() {
+            if *octo == 10 {
                 flag = true;
             }
         }
@@ -39,28 +39,28 @@ fn contains_10(octopuses: &Vec<Vec<u32>>) -> bool {
     flag
 }
 
-fn change_a_to_b(a: u32, b: u32, octopuses: &mut Vec<Vec<u32>>) {
-    for i in 0..N {
-        for j in 0..N {
-            if octopuses[i][j] == a {
-                octopuses[i][j] = b;
+fn change_a_to_b(a: u32, b: u32, octopuses: &mut [Vec<u32>]) {
+    for octopus in octopuses.iter_mut() {
+        for octo in octopus.iter_mut() {
+            if *octo == a {
+                *octo = b;
             }
         }
     }
 }
 
-fn add_1(octopuses: &mut Vec<Vec<u32>>) {
-    for i in 0..N {
-        for j in 0..N {
-            octopuses[i][j] += 1;
+fn add_1(octopuses: &mut [Vec<u32>]) {
+    for octopus in octopuses.iter_mut() {
+        for octo in octopus.iter_mut() {
+            *octo += 1;
         }
     }
 }
 
-fn perform_step(octopuses: &mut Vec<Vec<u32>>) -> u32 {
+fn perform_step(octopuses: &mut [Vec<u32>]) -> u32 {
     let mut flashes = 0;
     add_1(octopuses);
-    while contains_10(&octopuses) {
+    while contains_10(octopuses) {
         change_a_to_b(10, 11, octopuses);
         for i in 0..N {
             for j in 0..N {
@@ -80,11 +80,11 @@ fn perform_step(octopuses: &mut Vec<Vec<u32>>) -> u32 {
     flashes
 }
 
-fn is_simultaneous_flash(octopuses: &Vec<Vec<u32>>) -> bool {
+fn is_simultaneous_flash(octopuses: &[Vec<u32>]) -> bool {
     let mut flag = true;
-    for i in 0..N {
-        for j in 0..N {
-            if octopuses[i][j] != 0 {
+    for octopus in octopuses.iter() {
+        for octo in octopus.iter() {
+            if *octo != 0 {
                 flag = false;
             }
         }

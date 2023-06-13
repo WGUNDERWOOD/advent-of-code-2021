@@ -38,25 +38,25 @@ enum DelimType {
 
 fn get_match(c: char) -> Option<char> {
     match c {
-        '(' => return Some(')'),
-        '[' => return Some(']'),
-        '{' => return Some('}'),
-        '<' => return Some('>'),
-        ')' => return Some('('),
-        ']' => return Some('['),
-        '}' => return Some('{'),
-        '>' => return Some('<'),
-        _ => return None,
+        '(' => Some(')'),
+        '[' => Some(']'),
+        '{' => Some('}'),
+        '<' => Some('>'),
+        ')' => Some('('),
+        ']' => Some('['),
+        '}' => Some('{'),
+        '>' => Some('<'),
+        _ => None,
     }
 }
 
 fn get_delim_type(c: char) -> Option<DelimType> {
     if ['(', '[', '{', '<'].contains(&c) {
-        return Some(DelimType::Open);
+        Some(DelimType::Open)
     } else if [')', ']', '}', '>'].contains(&c) {
-        return Some(DelimType::Close);
+        Some(DelimType::Close)
     } else {
-        return None;
+        None
     }
 }
 
@@ -87,7 +87,7 @@ fn get_score_two(s: &str) -> u64 {
 }
 
 fn get_completion_string(s: &str) -> String {
-    let mut completed_string = s.clone().to_string();
+    let mut completed_string = s.to_string();
     let mut completion_string = "".to_string();
     let mut finished = false;
     while !finished {

@@ -20,7 +20,9 @@ fn to_decimal(binary: &Vec<bool>) -> u32 {
     let l = binary.len();
     for (j, b) in binary.iter().enumerate() {
         let power: u32 = (l - j - 1).try_into().unwrap();
-        if *b { decimal += 2_u32.pow(power) }
+        if *b {
+            decimal += 2_u32.pow(power)
+        }
     }
     decimal
 }
