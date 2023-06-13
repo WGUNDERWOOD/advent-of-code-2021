@@ -55,7 +55,12 @@ fn parse_input(input: &str) -> Target {
     let ymin = split[6].parse::<i32>().unwrap();
     let xmax = split[4].parse::<i32>().unwrap();
     let ymax = split[8].parse::<i32>().unwrap();
-    Target { xmin, ymin, xmax, ymax }
+    Target {
+        xmin,
+        ymin,
+        xmax,
+        ymax,
+    }
 }
 
 fn evaluate(probe: &Probe, target: &Target) -> (bool, i32) {

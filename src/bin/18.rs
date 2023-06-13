@@ -30,7 +30,11 @@ fn explode(snailfish: &mut Vec<String>) -> bool {
 
     // find previous int
     let mut previous_int_location = 0;
-    for (i, s) in snailfish.iter().enumerate().take(explode_comma_location - 1) {
+    for (i, s) in snailfish
+        .iter()
+        .enumerate()
+        .take(explode_comma_location - 1)
+    {
         if is_int(s) {
             previous_int_location = i;
         };
@@ -46,7 +50,11 @@ fn explode(snailfish: &mut Vec<String>) -> bool {
 
     // find next int
     let mut next_int_location = 0;
-    for (i, s) in snailfish.iter().enumerate().skip(explode_comma_location + 2) {
+    for (i, s) in snailfish
+        .iter()
+        .enumerate()
+        .skip(explode_comma_location + 2)
+    {
         if is_int(s) {
             next_int_location = i;
             break;
