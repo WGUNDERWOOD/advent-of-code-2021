@@ -23,10 +23,10 @@ impl Line {
 }
 
 fn add_point(ps: &mut HashMap<(u32, u32), u32>, p: (u32, u32)) {
-    if ps.contains_key(&p) {
-        *ps.get_mut(&p).unwrap() += 1;
+    if let std::collections::hash_map::Entry::Vacant(e) = ps.entry(p) {
+        e.insert(1);
     } else {
-        ps.insert(p, 1);
+        *ps.get_mut(&p).unwrap() += 1;
     }
 }
 
@@ -60,7 +60,7 @@ fn add_points(ps: &mut HashMap<(u32, u32), u32>, line: &Line) {
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let lines: Vec<Line> = input.lines().map(|x| build_line(x)).collect();
+    let lines: Vec<Line> = input.lines().map(build_line).collect();
     let axis_aligned_lines: Vec<&Line> = lines.iter().filter(|x| x.is_axis_aligned()).collect();
     let mut ps: HashMap<(u32, u32), u32> = HashMap::new();
     for line in axis_aligned_lines.iter() {
@@ -72,7 +72,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let lines: Vec<Line> = input.lines().map(|x| build_line(x)).collect();
+    let lines: Vec<Line> = input.lines().map(build_line).collect();
     let mut ps: HashMap<(u32, u32), u32> = HashMap::new();
     for line in lines.iter() {
         add_points(&mut ps, line);

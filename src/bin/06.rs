@@ -17,8 +17,8 @@ fn parse_input(input: &str) -> Array1<u64> {
 
 fn build_a() -> Array2<u64> {
     let mut a = [[0; NSTATES]; NSTATES];
-    for i in 0..(NSTATES - 1) {
-        a[i][i + 1] = 1;
+    for (i, b) in a.iter_mut().enumerate().take(NSTATES - 1) {
+        b[i + 1] = 1;
     }
     a[6][0] = 1;
     a[8][0] = 1;

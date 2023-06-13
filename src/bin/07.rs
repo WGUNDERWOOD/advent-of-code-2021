@@ -9,7 +9,7 @@ fn get_median(v: &Vec<u32>) -> u32 {
 fn fuel_part_one(a: u32, positions: &Vec<u32>) -> u32 {
     let mut fuel: u32 = 0;
     for position in positions {
-        fuel += (*position as i32 - a as i32).abs() as u32
+        fuel += (*position as i32 - a as i32).unsigned_abs();
     }
     fuel
 }
@@ -17,7 +17,7 @@ fn fuel_part_one(a: u32, positions: &Vec<u32>) -> u32 {
 fn fuel_part_two(a: u32, positions: &Vec<u32>) -> u32 {
     let mut fuel: u32 = 0;
     for position in positions {
-        let deviation = (*position as i32 - a as i32).abs() as u32;
+        let deviation = (*position as i32 - a as i32).unsigned_abs();
         fuel += deviation * (deviation + 1) / 2
     }
     fuel

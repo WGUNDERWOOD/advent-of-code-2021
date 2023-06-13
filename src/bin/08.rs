@@ -58,15 +58,12 @@ fn get_digits<'a>(patterns: &'a Vec<&'a str>) -> HashMap<u32, &'a str> {
     }
     // Find 2, 5
     for pattern in patterns {
-        match pattern.len() {
-            5 => {
-                if !contains_all(pattern, digits[&1]) && contains_all(digits[&9], pattern) {
-                    digits.insert(5, pattern);
-                } else if !contains_all(digits[&9], pattern) {
-                    digits.insert(2, pattern);
-                };
-            }
-            _ => (),
+        if pattern.len() == 5 {
+            if !contains_all(pattern, digits[&1]) && contains_all(digits[&9], pattern) {
+                digits.insert(5, pattern);
+            } else if !contains_all(digits[&9], pattern) {
+                digits.insert(2, pattern);
+            };
         };
     }
     digits
@@ -92,11 +89,11 @@ pub fn part_two(input: &str) -> Option<u32> {
     for i in 0..all_patterns.len() {
         let patterns = &all_patterns[i];
         let outputs = &all_outputs[i];
-        let digits = get_digits(&patterns);
+        let digits = get_digits(patterns);
         let mut outputs_str: String = "".to_string();
         for output in outputs {
             for j in 0..=9 {
-                if contains_all(&digits[&j], output) && contains_all(output, &digits[&j]) {
+                if contains_all(digits[&j], output) && contains_all(output, digits[&j]) {
                     outputs_str.push_str(&j.to_string());
                 }
             }

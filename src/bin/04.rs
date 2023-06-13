@@ -3,7 +3,7 @@ const DIM: usize = 5;
 fn parse_input(input: &str) -> (Vec<usize>, Vec<Board>) {
     let mut ls: Vec<&str> = input.lines().collect();
     let draws: Vec<usize> = ls[0]
-        .split(",")
+        .split(',')
         .map(|x| x.parse::<usize>().unwrap())
         .collect();
 
@@ -11,8 +11,8 @@ fn parse_input(input: &str) -> (Vec<usize>, Vec<Board>) {
     let mut boards: Vec<Board> = vec![];
     let mut numbers: Vec<Vec<usize>> = vec![];
 
-    for i in 2..ls.len() {
-        if ls[i] == "" {
+    for l in ls.iter().skip(2) {
+        if l.is_empty() {
             let marked = vec![vec![false; DIM]; DIM];
             let mut board = Board {
                 numbers: numbers.clone(),
@@ -22,8 +22,8 @@ fn parse_input(input: &str) -> (Vec<usize>, Vec<Board>) {
             boards.push(board);
             numbers = vec![]
         } else {
-            let row: Vec<usize> = ls[i]
-                .split(" ")
+            let row: Vec<usize> = l
+                .split(' ')
                 .filter(|x| !x.is_empty())
                 .map(|x| x.parse::<usize>().unwrap())
                 .collect();
@@ -95,7 +95,6 @@ impl Board {
 
 pub fn part_one(input: &str) -> Option<u32> {
     let (draws, mut boards) = parse_input(input);
-    let n_boards = boards.len();
     let mut won = false;
     let mut n = 0;
     let mut winning_draw = 0;
@@ -103,8 +102,7 @@ pub fn part_one(input: &str) -> Option<u32> {
 
     while !won {
         let draw = draws[n];
-        for b in 0..n_boards {
-            let board = &mut boards[b];
+        for (b, board) in boards.iter_mut().enumerate() {
             board.mark(draw);
             if board.has_won() {
                 won = true;
@@ -123,7 +121,6 @@ pub fn part_one(input: &str) -> Option<u32> {
 
 pub fn part_two(input: &str) -> Option<u32> {
     let (draws, mut boards) = parse_input(input);
-    let n_boards = boards.len();
     let mut n = 0;
     let mut finished = false;
     let mut losing_draw = 0;
@@ -133,11 +130,9 @@ pub fn part_two(input: &str) -> Option<u32> {
         let draw = draws[n];
         losing_draw = draw;
         finished = true;
-        for b in 0..n_boards {
-            let board = &mut boards[b];
+        for (b, board) in boards.iter_mut().enumerate() {
             board.mark(draw);
             if !board.has_won() {
-                // TODO this clone is unnecessary
                 losing_board_id = b;
                 finished = false;
             }
