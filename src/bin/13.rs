@@ -51,7 +51,7 @@ fn display(dots: &HashMap<Dot, bool>) {
                 print!(" ");
             }
         }
-        print!("\n");
+        println!();
     }
 }
 
@@ -111,14 +111,14 @@ fn parse_input(input: &str) -> (HashMap<Dot, bool>, Vec<Fold>) {
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
-    let (mut dots, folds) = parse_input(&input);
+    let (mut dots, folds) = parse_input(input);
     let fold = folds[0].clone();
     do_fold(fold, &mut dots);
     Some(dots.len() as u32)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    let (mut dots, folds) = parse_input(&input);
+    let (mut dots, folds) = parse_input(input);
     for fold in folds {
         do_fold(fold, &mut dots);
     }

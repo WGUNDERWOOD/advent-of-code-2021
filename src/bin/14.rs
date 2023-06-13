@@ -4,18 +4,18 @@ type PolymerCounts = HashMap<char, u64>;
 type Rules = HashMap<(char, char), char>;
 
 fn insert_or_increment(polymer: &mut Polymer, c: (char, char), increment: u64) {
-    if polymer.contains_key(&c) {
-        *polymer.get_mut(&c).unwrap() += increment;
+    if let std::collections::hash_map::Entry::Vacant(e) = polymer.entry(c) {
+        e.insert(increment);
     } else {
-        polymer.insert(c, increment);
+        *polymer.get_mut(&c).unwrap() += increment;
     }
 }
 
 fn insert_or_increment_counts(polymer_counts: &mut PolymerCounts, c: char, increment: u64) {
-    if polymer_counts.contains_key(&c) {
-        *polymer_counts.get_mut(&c).unwrap() += increment;
+    if let std::collections::hash_map::Entry::Vacant(e) = polymer_counts.entry(c) {
+        e.insert(increment);
     } else {
-        polymer_counts.insert(c, increment);
+        *polymer_counts.get_mut(&c).unwrap() += increment;
     }
 }
 
@@ -24,9 +24,8 @@ fn parse_polymer_counts(input: &str) -> PolymerCounts {
         .chars()
         .collect();
     let mut polymer_counts: PolymerCounts = HashMap::new();
-    for i in 0..polymer_list.len() {
-        let c = polymer_list[i];
-        insert_or_increment_counts(&mut polymer_counts, c, 1)
+    for polymer in polymer_list.iter() {
+        insert_or_increment_counts(&mut polymer_counts, *polymer, 1)
     }
     polymer_counts
 }
@@ -46,23 +45,23 @@ fn parse_polymer(input: &str) -> Polymer {
 
 fn parse_rules(input: &str) -> Rules {
     let rules_list: Vec<&str> = input.split("\n\n").collect::<Vec<&str>>()[1]
-        .split("\n")
+        .split('\n')
         .filter(|x| !x.is_empty())
         .collect();
     let mut rules = HashMap::new();
     for rule in &rules_list {
-        let pair1 = rule.chars().nth(0).unwrap();
+        let pair1 = rule.chars().next().unwrap();
         let pair2 = rule.chars().nth(1).unwrap();
         let c = rule.chars().nth(6).unwrap();
         rules.insert((pair1, pair2), c);
     }
-    return rules;
+    rules
 }
 
 fn get_most_least_common_char(polymer_counts: &PolymerCounts) -> (u64, u64) {
     let mut most_common = 0;
     let mut least_common = u64::MAX;
-    for (_, n) in polymer_counts {
+    for n in polymer_counts.values() {
         if *n > most_common {
             most_common = *n;
         }

@@ -43,12 +43,12 @@ fn hex_to_binary(c: char) -> Option<String> {
 }
 
 fn parse_input(input: &str) -> String {
-    let packet_vec: Vec<&str> = input.split("\n").filter(|x| !x.is_empty()).collect();
+    let packet_vec: Vec<&str> = input.split('\n').filter(|x| !x.is_empty()).collect();
     let packet_string: String = packet_vec[0]
         .chars()
         .map(|x| hex_to_binary(x).unwrap())
         .collect();
-    return packet_string;
+    packet_string
 }
 
 fn parse_packet(packet_string: &str, location: usize) -> Packet {
@@ -64,7 +64,7 @@ fn parse_literal_packet(packet_string: &str, location: usize) -> LiteralPacket {
     let type_id = i32::from_str_radix(&packet_string[location + 3..location + 6], 2).unwrap();
     let mut new_location: usize = location + 6;
     let mut value: String = "".to_string();
-    while packet_string[new_location..new_location + 1] == "1".to_string() {
+    while packet_string[new_location..new_location + 1] == *"1".to_string() {
         value.push_str(&packet_string[new_location + 1..new_location + 5]);
         new_location += 5;
     }

@@ -1,6 +1,6 @@
-fn is_int(s: &String) -> bool {
-    let flags: Vec<bool> = s.chars().map(|c| c.is_digit(10)).collect();
-    return !flags.contains(&false);
+fn is_int(s: &str) -> bool {
+    let flags: Vec<bool> = s.chars().map(|c| c.is_ascii_digit()).collect();
+    !flags.contains(&false)
 }
 
 fn explode(snailfish: &mut Vec<String>) -> bool {
@@ -30,8 +30,8 @@ fn explode(snailfish: &mut Vec<String>) -> bool {
 
     // find previous int
     let mut previous_int_location = 0;
-    for i in 0..explode_comma_location - 1 {
-        if is_int(&snailfish[i]) {
+    for (i, s) in snailfish.iter().enumerate().take(explode_comma_location - 1) {
+        if is_int(s) {
             previous_int_location = i;
         };
     }
@@ -46,8 +46,8 @@ fn explode(snailfish: &mut Vec<String>) -> bool {
 
     // find next int
     let mut next_int_location = 0;
-    for i in explode_comma_location + 2..snailfish.len() {
-        if is_int(&snailfish[i]) {
+    for (i, s) in snailfish.iter().enumerate().skip(explode_comma_location + 2) {
+        if is_int(s) {
             next_int_location = i;
             break;
         };
@@ -67,7 +67,7 @@ fn explode(snailfish: &mut Vec<String>) -> bool {
     }
     snailfish[explode_comma_location + 2] = "0".to_string();
     snailfish.retain(|x| !x.is_empty());
-    return flag;
+    flag
 }
 
 fn split(snailfish: &mut Vec<String>) -> bool {
@@ -76,9 +76,9 @@ fn split(snailfish: &mut Vec<String>) -> bool {
 
     // find where to split
     let mut split_location = 0;
-    for i in 0..snailfish.len() {
-        if is_int(&snailfish[i]) {
-            int_value = snailfish[i].parse().unwrap();
+    for (i, s) in snailfish.iter().enumerate() {
+        if is_int(s) {
+            int_value = s.parse().unwrap();
             if int_value >= 10 {
                 split_location = i;
                 flag = true;
@@ -98,7 +98,7 @@ fn split(snailfish: &mut Vec<String>) -> bool {
     snailfish.insert(split_location, ",".to_string());
     snailfish.insert(split_location, new_left.to_string());
     snailfish.insert(split_location, "[".to_string());
-    return flag;
+    flag
 }
 
 fn reduce(snailfish: &mut Vec<String>) -> bool {
@@ -108,7 +108,7 @@ fn reduce(snailfish: &mut Vec<String>) -> bool {
     if split(snailfish) {
         return true;
     };
-    return false;
+    false
 }
 
 fn get_magnitude(snailfish: &mut Vec<String>) -> i32 {
@@ -123,12 +123,11 @@ fn get_magnitude(snailfish: &mut Vec<String>) -> i32 {
     // otherwise find central comma
     let mut central_comma_location = 0;
     let mut bracket_count = 0;
-    for i in 1..snailfish.len() {
-        let c = &snailfish[i];
-        if c == "[" {
+    for (i, s) in snailfish.iter().enumerate().skip(1) {
+        if s == "[" {
             bracket_count += 1
         };
-        if c == "]" {
+        if s == "]" {
             bracket_count -= 1
         };
         if bracket_count == 0 {
@@ -140,13 +139,13 @@ fn get_magnitude(snailfish: &mut Vec<String>) -> i32 {
     // recurse
     let left = &mut snailfish[1..central_comma_location].to_vec();
     let right = &mut snailfish[central_comma_location + 1..snailfish.len() - 1].to_vec();
-    let value = 3 * get_magnitude(left) + 2 * get_magnitude(right);
-    return value;
+    value = 3 * get_magnitude(left) + 2 * get_magnitude(right);
+    value
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
     let snailfishes: Vec<Vec<String>> = input
-        .split("\n")
+        .split('\n')
         .filter(|x| !x.is_empty())
         .map(|x| {
             x.split("")
@@ -156,8 +155,8 @@ pub fn part_one(input: &str) -> Option<u32> {
         })
         .collect();
     let mut snailfish = snailfishes[0].clone();
-    for i in 1..snailfishes.len() {
-        let mut summand = snailfishes[i].clone();
+    for s in snailfishes.iter().skip(1) {
+        let mut summand = s.clone();
         snailfish.insert(0, "[".to_string());
         snailfish.push(",".to_string());
         snailfish.append(&mut summand);
@@ -165,12 +164,12 @@ pub fn part_one(input: &str) -> Option<u32> {
         while reduce(&mut snailfish) {}
     }
     let magnitude = get_magnitude(&mut snailfish);
-    return Some(magnitude.try_into().unwrap());
+    Some(magnitude.try_into().unwrap())
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
     let snailfishes: Vec<Vec<String>> = input
-        .split("\n")
+        .split('\n')
         .filter(|x| !x.is_empty())
         .map(|x| {
             x.split("")
@@ -197,7 +196,7 @@ pub fn part_two(input: &str) -> Option<u32> {
             }
         }
     }
-    return Some(best_magnitude.try_into().unwrap());
+    Some(best_magnitude.try_into().unwrap())
 }
 
 fn main() {

@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 fn parse_cavern(input: &str) -> Vec<Vec<i32>> {
     let cavern_rows = input
-        .split("\n")
+        .split('\n')
         .filter(|x| !x.is_empty())
         .collect::<Vec<&str>>();
     let n = cavern_rows.len();
@@ -20,7 +20,7 @@ fn parse_cavern(input: &str) -> Vec<Vec<i32>> {
                 .unwrap()
         }
     }
-    return cavern;
+    cavern
 }
 
 fn get_enlarged_cavern(cavern: &Vec<Vec<i32>>, factor: i32) -> Vec<Vec<i32>> {
@@ -34,22 +34,22 @@ fn get_enlarged_cavern(cavern: &Vec<Vec<i32>>, factor: i32) -> Vec<Vec<i32>> {
             enlarged_cavern[i][j] = (cavern[i % n][j % n] + increment - 1) % 9 + 1;
         }
     }
-    return enlarged_cavern;
+    enlarged_cavern
 }
 
 fn get_neighbors(current: (i32, i32), n: i32) -> HashMap<(i32, i32), bool> {
     let mut neighbors: HashMap<(i32, i32), bool> = HashMap::new();
     for i in [current.0 - 1, current.0 + 1] {
-        if (0 <= i) && (i <= n - 1) {
+        if (0 <= i) && (i < n) {
             neighbors.insert((i, current.1), true);
         }
     }
     for j in [current.1 - 1, current.1 + 1] {
-        if (0 <= j) && (j <= n - 1) {
+        if (0 <= j) && (j < n) {
             neighbors.insert((current.0, j), true);
         }
     }
-    return neighbors;
+    neighbors
 }
 
 #[derive(Copy, Clone)]
@@ -79,13 +79,13 @@ impl PartialOrd for State {
 fn get_nodes_edges(cavern: Vec<Vec<i32>>) -> (Vec<i32>, Vec<Vec<Edge>>) {
     let n = cavern.len() as i32;
 
-    let nodes: Vec<i32> = (0..n * n).map(|x| x as i32).collect();
+    let nodes: Vec<i32> = (0..n * n).collect();
     let mut edges: Vec<Vec<Edge>> = vec![];
 
     for i in 0..n {
         for j in 0..n {
             let mut node_edges: Vec<Edge> = vec![];
-            let neighbors = get_neighbors((i as i32, j as i32), n as i32);
+            let neighbors = get_neighbors((i, j), n);
             for position in neighbors.keys() {
                 let node = n * position.0 + position.1;
                 let risk = cavern[position.0 as usize][position.1 as usize];
@@ -96,10 +96,10 @@ fn get_nodes_edges(cavern: Vec<Vec<i32>>) -> (Vec<i32>, Vec<Vec<Edge>>) {
         }
     }
 
-    return (nodes, edges);
+    (nodes, edges)
 }
 
-fn get_best_risk(nodes: &Vec<i32>, edges: &Vec<Vec<Edge>>) -> i32 {
+fn get_best_risk(nodes: &Vec<i32>, edges: &[Vec<Edge>]) -> i32 {
     let n = nodes.len() as i32;
     let mut checking: BinaryHeap<State> = BinaryHeap::new();
     checking.push(State { node: 0, dist: 0 });
@@ -125,14 +125,14 @@ fn get_best_risk(nodes: &Vec<i32>, edges: &Vec<Vec<Edge>>) -> i32 {
         }
     }
 
-    return distances[(n - 1) as usize];
+    distances[(n - 1) as usize]
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
     let cavern = parse_cavern(input);
     let (nodes, edges) = get_nodes_edges(cavern);
     let best_risk = get_best_risk(&nodes, &edges);
-    return Some(best_risk as u32);
+    Some(best_risk as u32)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
@@ -140,7 +140,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let enlarged_cavern = get_enlarged_cavern(&cavern, 5);
     let (nodes, edges) = get_nodes_edges(enlarged_cavern);
     let best_risk = get_best_risk(&nodes, &edges);
-    return Some(best_risk as u32);
+    Some(best_risk as u32)
 }
 
 fn main() {

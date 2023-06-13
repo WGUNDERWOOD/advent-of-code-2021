@@ -33,12 +33,12 @@ impl Probe {
             && self.y >= target.ymin
             && self.y <= target.ymax
         {
-            return Status::Hit;
+            Status::Hit
         } else if self.y < target.ymin && self.vy <= 0 {
-            return Status::Missed;
+            Status::Missed
         } else {
-            return Status::Unknown;
-        };
+            Status::Unknown
+        }
     }
 }
 
@@ -55,12 +55,7 @@ fn parse_input(input: &str) -> Target {
     let ymin = split[6].parse::<i32>().unwrap();
     let xmax = split[4].parse::<i32>().unwrap();
     let ymax = split[8].parse::<i32>().unwrap();
-    return Target {
-        xmin,
-        ymin,
-        xmax,
-        ymax,
-    };
+    Target { xmin, ymin, xmax, ymax }
 }
 
 fn evaluate(probe: &Probe, target: &Target) -> (bool, i32) {
@@ -78,7 +73,7 @@ fn evaluate(probe: &Probe, target: &Target) -> (bool, i32) {
         }
     }
     let hit = new_probe.status(target) == Status::Hit;
-    return (hit, height);
+    (hit, height)
 }
 
 pub fn part_one(input: &str) -> Option<u32> {
@@ -93,7 +88,7 @@ pub fn part_one(input: &str) -> Option<u32> {
             }
         }
     }
-    return Some(best_height as u32);
+    Some(best_height as u32)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
@@ -102,13 +97,13 @@ pub fn part_two(input: &str) -> Option<u32> {
     for vx in -400..400 {
         for vy in -100..100 {
             let probe = Probe { x: 0, y: 0, vx, vy };
-            let (hit, height) = evaluate(&probe, &target);
+            let (hit, _height) = evaluate(&probe, &target);
             if hit {
                 counter += 1
             }
         }
     }
-    return Some(counter as u32);
+    Some(counter as u32)
 }
 
 fn main() {
