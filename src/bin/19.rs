@@ -13,6 +13,7 @@
 //
 
 use ndarray::arr2;
+use ndarray::Array1;
 use ndarray::Array2;
 
 type Scanner = Array2<i32>;
@@ -59,37 +60,94 @@ fn get_rotations() -> Vec<Rotation> {
     rotations
 }
 
+fn add_rows(a: Array2<i32>, b: Array1<i32>) -> Array2<i32> {
+    let mut new_a = Array2::<i32>::zeros(a.raw_dim());
+    for row in 0..a.nrows() {
+        for col in 0..a.ncols() {
+            new_a[[row, col]] += b[col];
+        }
+    }
+    new_a
+}
+
+fn count_matches(scanner0: Scanner, scanner1: Scanner) -> i32 {
+    let mut count = 0;
+    for s0 in scanner0.rows() {
+        let mut is_match = false;
+        for s1 in scanner1.rows() {
+            if s0 == s1 {
+                is_match = true
+            }
+        }
+        if is_match {
+            count += 1
+        }
+    }
+    count
+}
+
 pub fn part_one(input: &str) -> Option<u32> {
     let scanners = parse_scanners(input);
     let rotations = get_rotations();
-    let mut fixed_scanners = vec![0];
-    let mut unfixed_scanners: Vec<usize> = (1..scanners.len()).collect();
+    //let mut fixed_scanners = vec![0];
+    //let mut unfixed_scanners: Vec<usize> = (1..scanners.len()).collect();
 
-    let mut rep = 0;
-    while !unfixed_scanners.is_empty() && rep < 2 {
-        let mut scanner1: Scanner = scanners.iter().nth(unfixed_scanners[0]).unwrap().clone();
-        for idx0 in fixed_scanners.iter() {
-            let scanner0: &Scanner = scanners.iter().nth(*idx0).unwrap();
-            for rotation in &rotations {
-                scanner1 = scanner1.dot(rotation);
-                for beacon0 in 0..scanner0.nrows() {
-                    for beacon1 in 0..scanner1.nrows() {
-                        dbg!(beacon0);
-                        dbg!(beacon1);
-                        for row in 0..scanner1.nrows() {
-                            for col in 0..3 {
-                                scanner1[[row, col]] +=
-                                    -scanner1[[beacon1, col]] + scanner0[[beacon0, col]];
-                            }
-                            dbg!(&scanner1);
-                        }
-                    }
+    let scanner0 = &scanners[0];
+    let scanner1 = &scanners[1];
+    for rotation in &rotations {
+        let rotated_scanner1 = scanner1.dot(rotation);
+        //dbg!(&rotated_scanner1);
+        for beacon0 in 0..scanner0.nrows() {
+            for beacon1 in 0..scanner1.nrows() {
+                //dbg!(scanner0.row(beacon0));
+                let translated_scanner1 =
+                    add_rows(rotated_scanner1.clone(), scanner0.row(beacon0).to_owned());
+                let matches = count_matches(scanner0.clone(), translated_scanner1);
+                if matches > 1 {
+                    dbg!(matches);
                 }
+                //dbg!(beacon0);
+                //dbg!(beacon1);
             }
         }
-
-        rep += 1
     }
+    //                    dbg!(beacon0);
+    //                    dbg!(beacon1);
+    //                    for row in 0..scanner1.nrows() {
+    //                        for col in 0..3 {
+    //                            scanner1[[row, col]] +=
+    //                                -scanner1[[beacon1, col]] + scanner0[[beacon0, col]];
+    //                        }
+    //                        dbg!(&scanner1);
+    //                    }
+    //                }
+    //            }
+
+    //let mut rep = 0;
+    //while !unfixed_scanners.is_empty() && rep < 2 {
+    //    let mut scanner1: Scanner = scanners.iter().nth(unfixed_scanners[0]).unwrap().clone();
+    //    for idx0 in fixed_scanners.iter() {
+    //        let scanner0: &Scanner = scanners.iter().nth(*idx0).unwrap();
+    //        for rotation in &rotations {
+    //            scanner1 = scanner1.dot(rotation);
+    //            for beacon0 in 0..scanner0.nrows() {
+    //                for beacon1 in 0..scanner1.nrows() {
+    //                    dbg!(beacon0);
+    //                    dbg!(beacon1);
+    //                    for row in 0..scanner1.nrows() {
+    //                        for col in 0..3 {
+    //                            scanner1[[row, col]] +=
+    //                                -scanner1[[beacon1, col]] + scanner0[[beacon0, col]];
+    //                        }
+    //                        dbg!(&scanner1);
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
+
+    //    rep += 1
+    //}
     None
 }
 
