@@ -62,7 +62,7 @@ fn parse_scanners(input: &str) -> Vec<Scanner> {
 }
 
 fn get_distance(p0: Point, p1: Point) -> i32 {
-    return (p0.0 - p1.0).pow(2) + (p0.1 - p1.1).pow(2) + (p0.2 - p1.2).pow(2)
+    return (p0.0 - p1.0).pow(2) + (p0.1 - p1.1).pow(2) + (p0.2 - p1.2).pow(2);
 }
 
 fn get_fingerprints(scanners: Vec<Scanner>) -> Vec<Fingerprint> {
@@ -85,23 +85,23 @@ fn get_fingerprints(scanners: Vec<Scanner>) -> Vec<Fingerprint> {
 }
 
 /*
-   fn get_distances(scanners: &Vec<Vec<Vec<i32>>>) -> Vec<Vec<Vec<i32>>> {
-   let mut distances: Vec<Vec<Vec<i32>>> = vec![];
-   for scanner in 0..scanners.len() {
-   let n_beacons = scanners[scanner].len();
-   distances.push(vec![vec![0; n_beacons]; n_beacons]);
-   for beacon0 in 0..n_beacons {
-   for beacon1 in 0..n_beacons {
-   for i in 0..3 {
-   let distance = (scanners[scanner][beacon1][i] - scanners[scanner][beacon1][i]).abs();
-   distances[scanner][beacon0][beacon1] += distance;
-   }
-   }
-   }
-   }
-   distances
-   }
-   */
+fn get_distances(scanners: &Vec<Vec<Vec<i32>>>) -> Vec<Vec<Vec<i32>>> {
+let mut distances: Vec<Vec<Vec<i32>>> = vec![];
+for scanner in 0..scanners.len() {
+let n_beacons = scanners[scanner].len();
+distances.push(vec![vec![0; n_beacons]; n_beacons]);
+for beacon0 in 0..n_beacons {
+for beacon1 in 0..n_beacons {
+for i in 0..3 {
+let distance = (scanners[scanner][beacon1][i] - scanners[scanner][beacon1][i]).abs();
+distances[scanner][beacon0][beacon1] += distance;
+}
+}
+}
+}
+distances
+}
+*/
 
 pub fn part_one(input: &str) -> Option<u32> {
     let scanners = parse_scanners(input);
