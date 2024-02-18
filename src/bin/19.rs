@@ -11,16 +11,41 @@
 //             if this is at least 12
 //                 remove scanner1 from unfixed and add it to fixed (translated rotated version)
 //
+//
+// new approach
+//
+// for each scanner construct a beacon to beacon difference array
+// with distances[(beacon0, beacon1)] = beacon1 - beacon0
+//
+// for each scanner construct a beacon to beacon distance array
+// with distances[(beacon0, beacon1)] = ||beacon1 - beacon0||_1
+//
+// for each pair of scanners check the overlap of their distance arrays
+// and record these in overlaps[scanner0, scanner1]
+//
+// determine the pairings by finding those with at least 12 overlaps
+//
+// for each pairing use the difference arrays to find the rotation and translation
+// giving at least 12 refined overlaps, traversing the path of pairings
+//
+//
+// another new approach
+//
+// for each scanner construct a fingerprint
+// this is a list of all squared distances between beacons detected
+//
+// then for each pair of scanner see if at least 66 of these agree,
+// store such pairs in a list
+//
+// TODO then work out rotations and translations
+// TODO then count total number of beacons
 
-use ndarray::arr2;
-use ndarray::Array1;
-use ndarray::Array2;
-
-type Scanner = Array2<i32>;
-type Rotation = Array2<i32>;
+type Point = (i32, i32, i32);
+type Scanner = Vec<Point>;
+type Fingerprint = Vec<i32>;
 
 fn parse_scanners(input: &str) -> Vec<Scanner> {
-    let scanner_strings: Vec<Vec<Vec<i32>>> = input
+    let scanners_list: Vec<Vec<Vec<i32>>> = input
         .split("\n\n")
         .map(|x| {
             x.split("\n")
@@ -29,125 +54,62 @@ fn parse_scanners(input: &str) -> Vec<Scanner> {
                 .collect()
         })
         .collect();
-    let scanner_vecs: Vec<Vec<i32>> = scanner_strings
+    let scanners = scanners_list
         .iter()
-        .map(|x| x.iter().flatten().cloned().collect())
+        .map(|x| x.iter().map(|y| (y[0], y[1], y[2])).collect())
         .collect();
-    let scanners: Vec<Scanner> = scanner_vecs
-        .iter()
-        .map(|x| Array2::from_shape_vec((x.len() / 3, 3), x.to_vec()).unwrap())
-        .collect();
-    return scanners;
+    scanners
 }
 
-fn get_rotations() -> Vec<Rotation> {
-    let id = arr2(&[[1, 0, 0], [0, 1, 0], [0, 0, 1]]);
-    let rot_i = arr2(&[[1, 0, 0], [0, 0, -1], [0, 1, 0]]);
-    let rot_j = arr2(&[[0, 0, -1], [0, 1, 0], [1, 0, 0]]);
-    let rot_k = arr2(&[[0, -1, 0], [1, 0, 0], [0, 0, 1]]);
-    let basis_rotations = vec![rot_i, rot_j, rot_k];
-    let mut rotations: Vec<Rotation> = vec![id];
-    for _ in 0..4 {
-        for rotation in rotations.clone().iter() {
-            for rot in &basis_rotations {
-                let new_rotation = rotation.dot(rot);
-                if !rotations.contains(&new_rotation) {
-                    rotations.push(new_rotation);
+fn get_distance(p0: Point, p1: Point) -> i32 {
+    return (p0.0 - p1.0).pow(2) + (p0.1 - p1.1).pow(2) + (p0.2 - p1.2).pow(2)
+}
+
+fn get_fingerprints(scanners: Vec<Scanner>) -> Vec<Fingerprint> {
+    let mut fingerprints = vec![];
+    for s in scanners {
+        let n = s.len();
+        let mut distances = vec![];
+        for i in 0..n {
+            for j in 0..n {
+                if i < j {
+                    let bi = s[i];
+                    let bj = s[j];
+                    distances.push(get_distance(bi, bj));
                 }
             }
         }
+        fingerprints.push(distances);
     }
-    rotations
+    fingerprints
 }
 
-fn add_rows(a: Array2<i32>, b: Array1<i32>) -> Array2<i32> {
-    let mut new_a = Array2::<i32>::zeros(a.raw_dim());
-    for row in 0..a.nrows() {
-        for col in 0..a.ncols() {
-            new_a[[row, col]] += b[col];
-        }
-    }
-    new_a
-}
-
-fn count_matches(scanner0: Scanner, scanner1: Scanner) -> i32 {
-    let mut count = 0;
-    for s0 in scanner0.rows() {
-        let mut is_match = false;
-        for s1 in scanner1.rows() {
-            if s0 == s1 {
-                is_match = true
-            }
-        }
-        if is_match {
-            count += 1
-        }
-    }
-    count
-}
+/*
+   fn get_distances(scanners: &Vec<Vec<Vec<i32>>>) -> Vec<Vec<Vec<i32>>> {
+   let mut distances: Vec<Vec<Vec<i32>>> = vec![];
+   for scanner in 0..scanners.len() {
+   let n_beacons = scanners[scanner].len();
+   distances.push(vec![vec![0; n_beacons]; n_beacons]);
+   for beacon0 in 0..n_beacons {
+   for beacon1 in 0..n_beacons {
+   for i in 0..3 {
+   let distance = (scanners[scanner][beacon1][i] - scanners[scanner][beacon1][i]).abs();
+   distances[scanner][beacon0][beacon1] += distance;
+   }
+   }
+   }
+   }
+   distances
+   }
+   */
 
 pub fn part_one(input: &str) -> Option<u32> {
     let scanners = parse_scanners(input);
-    let rotations = get_rotations();
-    //let mut fixed_scanners = vec![0];
-    //let mut unfixed_scanners: Vec<usize> = (1..scanners.len()).collect();
-
-    let scanner0 = &scanners[0];
-    let scanner1 = &scanners[1];
-    for rotation in &rotations {
-        let rotated_scanner1 = scanner1.dot(rotation);
-        //dbg!(&rotated_scanner1);
-        for beacon0 in 0..scanner0.nrows() {
-            for beacon1 in 0..scanner1.nrows() {
-                //dbg!(scanner0.row(beacon0));
-                let translated_scanner1 =
-                    add_rows(rotated_scanner1.clone(), scanner0.row(beacon0).to_owned());
-                let matches = count_matches(scanner0.clone(), translated_scanner1);
-                if matches > 1 {
-                    dbg!(matches);
-                }
-                //dbg!(beacon0);
-                //dbg!(beacon1);
-            }
-        }
-    }
-    //                    dbg!(beacon0);
-    //                    dbg!(beacon1);
-    //                    for row in 0..scanner1.nrows() {
-    //                        for col in 0..3 {
-    //                            scanner1[[row, col]] +=
-    //                                -scanner1[[beacon1, col]] + scanner0[[beacon0, col]];
-    //                        }
-    //                        dbg!(&scanner1);
-    //                    }
-    //                }
-    //            }
-
-    //let mut rep = 0;
-    //while !unfixed_scanners.is_empty() && rep < 2 {
-    //    let mut scanner1: Scanner = scanners.iter().nth(unfixed_scanners[0]).unwrap().clone();
-    //    for idx0 in fixed_scanners.iter() {
-    //        let scanner0: &Scanner = scanners.iter().nth(*idx0).unwrap();
-    //        for rotation in &rotations {
-    //            scanner1 = scanner1.dot(rotation);
-    //            for beacon0 in 0..scanner0.nrows() {
-    //                for beacon1 in 0..scanner1.nrows() {
-    //                    dbg!(beacon0);
-    //                    dbg!(beacon1);
-    //                    for row in 0..scanner1.nrows() {
-    //                        for col in 0..3 {
-    //                            scanner1[[row, col]] +=
-    //                                -scanner1[[beacon1, col]] + scanner0[[beacon0, col]];
-    //                        }
-    //                        dbg!(&scanner1);
-    //                    }
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    rep += 1
-    //}
+    dbg!(&scanners);
+    let fingerprints = get_fingerprints(scanners);
+    dbg!(&fingerprints);
+    //let distances = get_distances(&scanners);
+    //dbg!(&distances[0]);
     None
 }
 
