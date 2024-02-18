@@ -53,7 +53,7 @@ fn parse_scanners(input: &str) -> Vec<Scanner> {
                 .map(|x| x.split(",").map(|x| x.parse().unwrap()).collect())
                 .collect()
         })
-        .collect();
+    .collect();
     let scanners = scanners_list
         .iter()
         .map(|x| x.iter().map(|y| (y[0], y[1], y[2])).collect())
@@ -65,51 +65,76 @@ fn get_distance(p0: Point, p1: Point) -> i32 {
     return (p0.0 - p1.0).pow(2) + (p0.1 - p1.1).pow(2) + (p0.2 - p1.2).pow(2);
 }
 
-fn get_fingerprints(scanners: Vec<Scanner>) -> Vec<Fingerprint> {
-    let mut fingerprints = vec![];
-    for s in scanners {
-        let n = s.len();
-        let mut distances = vec![];
-        for i in 0..n {
-            for j in 0..n {
-                if i < j {
-                    let bi = s[i];
-                    let bj = s[j];
-                    distances.push(get_distance(bi, bj));
+fn get_fingerprint(scanner: &Scanner) -> Fingerprint {
+    let mut fingerprint = vec![];
+    let n = scanner.len();
+    for i in 0..n {
+        for j in 0..n {
+            if i < j {
+                let bi = scanner[i];
+                let bj = scanner[j];
+                fingerprint.push(get_distance(bi, bj));
+            }
+        }
+    }
+    fingerprint
+}
+
+fn count_match_fingerprint(f0: &Fingerprint, f1: &Fingerprint) -> i32 {
+    let mut count = 0;
+    for d0 in f0 {
+        for d1 in f1 {
+            if d0 == d1 {
+                count +=1;
+            }
+        }
+    }
+    count
+}
+
+fn get_fingerprint_pairs(fingerprints: &Vec<Fingerprint>) -> Vec<(usize, usize)> {
+    let mut fingerprint_pairs = vec![];
+    let n = fingerprints.len();
+    for i in 0..n {
+        for j in 0..n {
+            if i < j {
+                if count_match_fingerprint(&fingerprints[i], &fingerprints[j]) >= 66 {
+                    fingerprint_pairs.push((i, j))
                 }
             }
         }
-        fingerprints.push(distances);
     }
-    fingerprints
+    fingerprint_pairs
 }
 
 /*
-fn get_distances(scanners: &Vec<Vec<Vec<i32>>>) -> Vec<Vec<Vec<i32>>> {
-let mut distances: Vec<Vec<Vec<i32>>> = vec![];
-for scanner in 0..scanners.len() {
-let n_beacons = scanners[scanner].len();
-distances.push(vec![vec![0; n_beacons]; n_beacons]);
-for beacon0 in 0..n_beacons {
-for beacon1 in 0..n_beacons {
-for i in 0..3 {
-let distance = (scanners[scanner][beacon1][i] - scanners[scanner][beacon1][i]).abs();
-distances[scanner][beacon0][beacon1] += distance;
-}
-}
-}
-}
-distances
-}
-*/
+   fn get_distances(scanners: &Vec<Vec<Vec<i32>>>) -> Vec<Vec<Vec<i32>>> {
+   let mut distances: Vec<Vec<Vec<i32>>> = vec![];
+   for scanner in 0..scanners.len() {
+   let n_beacons = scanners[scanner].len();
+   distances.push(vec![vec![0; n_beacons]; n_beacons]);
+   for beacon0 in 0..n_beacons {
+   for beacon1 in 0..n_beacons {
+   for i in 0..3 {
+   let distance = (scanners[scanner][beacon1][i] - scanners[scanner][beacon1][i]).abs();
+   distances[scanner][beacon0][beacon1] += distance;
+   }
+   }
+   }
+   }
+   distances
+   }
+   */
 
 pub fn part_one(input: &str) -> Option<u32> {
     let scanners = parse_scanners(input);
     dbg!(&scanners);
-    let fingerprints = get_fingerprints(scanners);
+    let fingerprints: Vec<Fingerprint> = scanners.iter().map(|s| get_fingerprint(s)).collect();
     dbg!(&fingerprints);
-    //let distances = get_distances(&scanners);
-    //dbg!(&distances[0]);
+    let fingerprint_pairs = get_fingerprint_pairs(&fingerprints);
+    dbg!(&fingerprint_pairs);
+    dbg!(scanners.len());
+    dbg!(&fingerprint_pairs.len());
     None
 }
 
